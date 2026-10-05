@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>네이버 인플루언서 키워드 분석 대시보드</title>
+    <title>네이버 인플루언서 키워드 대시보드</title>
     <meta name="description" content="네이버 인플루언서 공연·전시·예술 키워드 1,400+개 및 월별 추천·상세 키워드 분석 대시보드">
     
     <!-- Google Fonts & Pretendard -->
@@ -30,6 +30,7 @@
             --accent-green: #10b981;
             --accent-amber: #f59e0b;
             --accent-cyan: #06b6d4;
+            --accent-red: #ef4444;
             
             --text-main: #f9fafb;
             --text-sub: #9ca3af;
@@ -81,6 +82,129 @@
             background: radial-gradient(circle, rgba(168, 85, 247, 0.12) 0%, rgba(168, 85, 247, 0) 70%);
             pointer-events: none;
             z-index: 0;
+        }
+
+        /* 🔒 Password Lock Screen Overlay */
+        #auth-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(11, 15, 23, 0.96);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+        #auth-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.03);
+        }
+
+        .auth-card {
+            background: rgba(22, 29, 44, 0.95);
+            border: 1px solid rgba(99, 102, 241, 0.35);
+            border-radius: var(--radius-lg);
+            padding: 36px 32px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 40px rgba(99, 102, 241, 0.15);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+        }
+        .auth-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: var(--primary-gradient);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin: 0 auto;
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+        .auth-title {
+            font-family: "Outfit", "Pretendard", sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+        }
+        .auth-desc {
+            font-size: 0.88rem;
+            color: var(--text-sub);
+            margin-top: -12px;
+        }
+        .auth-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            text-align: left;
+        }
+        .auth-input {
+            width: 100%;
+            padding: 13px 16px;
+            background: rgba(9, 13, 20, 0.9);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: #ffffff;
+            font-size: 1.15rem;
+            text-align: center;
+            letter-spacing: 0.25em;
+            outline: none;
+            transition: var(--transition);
+        }
+        .auth-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+        }
+        .auth-input.shake {
+            animation: shake 0.4s ease-in-out;
+            border-color: var(--accent-red);
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        .auth-remember {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            color: var(--text-sub);
+            cursor: pointer;
+            user-select: none;
+        }
+        .auth-error {
+            font-size: 0.82rem;
+            color: var(--accent-red);
+            min-height: 18px;
+            font-weight: 500;
+        }
+        .btn-auth-submit {
+            width: 100%;
+            padding: 13px;
+            border-radius: var(--radius-sm);
+            background: var(--primary-gradient);
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+        }
+        .btn-auth-submit:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
         }
 
         /* Header */
@@ -146,6 +270,19 @@
             border-radius: 50%;
             background: #10b981;
             animation: pulse-dot 1.8s infinite;
+        }
+
+        .badge-private {
+            font-size: 0.72rem;
+            padding: 3px 8px;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: var(--primary-light);
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         @keyframes pulse-dot {
@@ -593,7 +730,7 @@
             background: rgba(11, 15, 23, 0.92);
             backdrop-filter: blur(10px);
             z-index: 999;
-            display: flex;
+            display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -676,6 +813,28 @@
     <div class="bg-glow-1"></div>
     <div class="bg-glow-2"></div>
 
+    <!-- 🔒 Password Lock Screen -->
+    <div id="auth-overlay">
+        <div class="auth-card">
+            <div class="auth-icon">🔒</div>
+            <div>
+                <h2 class="auth-title">비공개 키워드 대시보드</h2>
+                <p class="auth-desc">접속을 위해 인증 비밀번호를 입력해주세요.</p>
+            </div>
+            <form id="auth-form" onsubmit="handleAuthSubmit(event)">
+                <div class="auth-input-group">
+                    <input type="password" id="auth-password-input" class="auth-input" placeholder="••••" maxlength="10" autofocus autocomplete="current-password">
+                    <div id="auth-error-msg" class="auth-error"></div>
+                    <label class="auth-remember">
+                        <input type="checkbox" id="auth-remember-check" checked>
+                        <span>이 기기에서 로그인 상태 유지</span>
+                    </label>
+                </div>
+                <button type="submit" class="btn-auth-submit" id="btn-auth-submit" style="margin-top: 16px;">대시보드 열기</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Loading Overlay -->
     <div id="loading-overlay">
         <div class="spinner"></div>
@@ -689,6 +848,7 @@
             <div>
                 <h1 id="app-title">
                     네이버 인플루언서 키워드 대시보드
+                    <span class="badge-private">🔒 Private</span>
                     <span class="badge-live">Live</span>
                 </h1>
             </div>
@@ -697,6 +857,10 @@
             <button class="btn btn-secondary" id="btn-export-csv" title="현재 필터링된 테이블 CSV 다운로드">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 CSV 내보내기
+            </button>
+            <button class="btn btn-secondary" id="btn-lock" title="화면 다시 잠그기" onclick="lockDashboard()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                잠금
             </button>
             <a href="https://github.com/sigong-photo/keyword-dashboard" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" id="btn-github-link">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
@@ -784,15 +948,19 @@
 
     <!-- Footer -->
     <footer>
-        <p>네이버 인플루언서 공연·전시·예술 키워드 대시보드 | Powered by GitHub Pages</p>
+        <p>네이버 인플루언서 공연·전시·예술 키워드 대시보드 | Protected Access</p>
     </footer>
 
     <!-- Core App Logic -->
     <script>
         const EXCEL_FILE_PATH = "네이버_인플루언서_공연전시예술_월별상시_분석추천.xlsx";
+        // SHA-256 hash of password '5647'
+        const AUTH_HASH = "edbb15588efba3a537127a1e484bead52ca02ca87cc19f50ae38ef6b23c6c927";
+        const STORAGE_KEY = "keyword_dash_auth";
 
         // State Management
         const state = {
+            isAuthenticated: false,
             workbook: null,
             sheets: {},
             currentSheet: "",
@@ -819,6 +987,10 @@
         };
 
         // UI Elements
+        const elAuthOverlay = document.getElementById("auth-overlay");
+        const elAuthInput = document.getElementById("auth-password-input");
+        const elAuthError = document.getElementById("auth-error-msg");
+        const elAuthRemember = document.getElementById("auth-remember-check");
         const elLoading = document.getElementById("loading-overlay");
         const elLoadingMsg = document.getElementById("loading-msg");
         const elSheetTabs = document.getElementById("sheet-tabs");
@@ -841,9 +1013,85 @@
             setTimeout(() => elToast.classList.remove("show"), 2200);
         }
 
+        // SHA-256 helper
+        async function sha256(text) {
+            const enc = new TextEncoder();
+            const data = enc.encode(text);
+            const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+        }
+
+        // Check Authentication Status
+        async function checkInitialAuth() {
+            const savedToken = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
+            if (savedToken === AUTH_HASH) {
+                state.isAuthenticated = true;
+                elAuthOverlay.classList.add("hidden");
+                loadExcel();
+            } else {
+                elAuthOverlay.classList.remove("hidden");
+                elAuthInput.focus();
+            }
+        }
+
+        // Handle Password Submission
+        async function handleAuthSubmit(e) {
+            e.preventDefault();
+            const val = elAuthInput.value.trim();
+            if (!val) {
+                elAuthError.textContent = "비밀번호를 입력해주세요.";
+                shakeAuthInput();
+                return;
+            }
+
+            const inputHash = await sha256(val);
+            if (inputHash === AUTH_HASH) {
+                state.isAuthenticated = true;
+                elAuthError.textContent = "";
+
+                if (elAuthRemember.checked) {
+                    localStorage.setItem(STORAGE_KEY, AUTH_HASH);
+                } else {
+                    sessionStorage.setItem(STORAGE_KEY, AUTH_HASH);
+                }
+
+                elAuthOverlay.classList.add("hidden");
+                showToast("인증되었습니다.");
+                loadExcel();
+            } else {
+                elAuthError.textContent = "비밀번호가 올바르지 않습니다.";
+                shakeAuthInput();
+                elAuthInput.value = "";
+                elAuthInput.focus();
+            }
+        }
+
+        function shakeAuthInput() {
+            elAuthInput.classList.remove("shake");
+            void elAuthInput.offsetWidth; // trigger reflow
+            elAuthInput.classList.add("shake");
+        }
+
+        // Lock Dashboard
+        window.lockDashboard = function() {
+            localStorage.removeItem(STORAGE_KEY);
+            sessionStorage.removeItem(STORAGE_KEY);
+            state.isAuthenticated = false;
+            elAuthInput.value = "";
+            elAuthError.textContent = "";
+            elAuthOverlay.classList.remove("hidden");
+            elAuthInput.focus();
+            showToast("대시보드가 잠겼습니다.");
+        };
+
         // 1. Fetch & Parse Excel Data
         async function loadExcel() {
+            if (!state.isAuthenticated) return;
+
             try {
+                elLoading.style.display = "flex";
+                elLoading.style.opacity = "1";
                 elLoadingMsg.textContent = "엑셀 데이터를 다운로드하는 중...";
                 const res = await fetch(encodeURI(EXCEL_FILE_PATH));
                 if (!res.ok) {
@@ -1249,8 +1497,8 @@
             showToast(`${state.currentSheet} CSV 다운로드 완료!`);
         });
 
-        // Initialize App
-        window.addEventListener("DOMContentLoaded", loadExcel);
+        // Initialize App with Auth Check
+        window.addEventListener("DOMContentLoaded", checkInitialAuth);
     </script>
 </body>
 </html>
