@@ -1,18 +1,23 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>키워드 챌린지 시즌 분석기 | 네이버 인플루언서</title>
     <meta name="description" content="월별 작성 타이밍, 경쟁 기회, 상세 키워드를 한 화면에서 탐색하는 네이버 인플루언서 키워드 챌린지 시즌 분석기">
-    
+
     <!-- Favicon & Google Fonts & Pretendard -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+
     <!-- SheetJS (Excel Parser) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
@@ -22,29 +27,31 @@
             --bg-card: #ffffff;
             --border-color: #e5e7eb;
             --border-light: #f3f4f6;
-            
+
             --text-heading: #111827;
             --text-body: #374151;
             --text-sub: #6b7280;
             --text-muted: #9ca3af;
-            
+
             --green-dark: #1b4332;
             --green-mid: #2d6a4f;
             --green-light: #40916c;
             --green-accent: #10b981;
             --green-subtle: #ecfdf5;
-            
+
             --radius-sm: 8px;
             --radius-md: 14px;
             --radius-lg: 20px;
             --radius-pill: 9999px;
-            
+
             --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
             --shadow-card: 0 4px 16px -2px rgba(0, 0, 0, 0.05);
             --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        *, *::before, *::after {
+        *,
+        *::before,
+        *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
@@ -77,6 +84,7 @@
             padding: 20px;
             transition: opacity 0.3s ease;
         }
+
         #auth-overlay.hidden {
             opacity: 0;
             pointer-events: none;
@@ -95,6 +103,7 @@
             flex-direction: column;
             gap: 20px;
         }
+
         .auth-badge-icon {
             width: 56px;
             height: 56px;
@@ -108,17 +117,20 @@
             color: #ffffff;
             box-shadow: 0 8px 16px rgba(27, 67, 50, 0.25);
         }
+
         .auth-title {
             font-size: 1.35rem;
             font-weight: 800;
             color: var(--text-heading);
             letter-spacing: -0.02em;
         }
+
         .auth-desc {
             font-size: 0.88rem;
             color: var(--text-sub);
             margin-top: -10px;
         }
+
         .auth-input {
             width: 100%;
             padding: 13px 16px;
@@ -126,32 +138,49 @@
             border: 1.5px solid var(--border-color);
             border-radius: var(--radius-sm);
             color: var(--text-heading);
-            font-size: 1.25rem;
+            font-size: 1.05rem;
             text-align: center;
-            letter-spacing: 0.25em;
+            letter-spacing: 0.1em;
             outline: none;
             transition: var(--transition);
         }
+
         .auth-input:focus {
             background: #ffffff;
             border-color: var(--green-mid);
             box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.15);
         }
+
         .auth-input.shake {
             animation: shake 0.4s ease-in-out;
             border-color: #ef4444;
         }
+
         @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-8px); }
-            40%, 80% { transform: translateX(8px); }
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20%,
+            60% {
+                transform: translateX(-8px);
+            }
+
+            40%,
+            80% {
+                transform: translateX(8px);
+            }
         }
+
         .auth-error {
             font-size: 0.82rem;
             color: #ef4444;
             min-height: 18px;
             font-weight: 500;
         }
+
         .auth-remember {
             display: flex;
             align-items: center;
@@ -162,6 +191,7 @@
             cursor: pointer;
             user-select: none;
         }
+
         .btn-auth-submit {
             width: 100%;
             padding: 13px;
@@ -175,6 +205,7 @@
             transition: var(--transition);
             box-shadow: 0 4px 12px rgba(27, 67, 50, 0.3);
         }
+
         .btn-auth-submit:hover {
             opacity: 0.95;
             transform: translateY(-1px);
@@ -205,6 +236,7 @@
             justify-content: space-between;
             min-height: 230px;
         }
+
         .hero-banner::after {
             content: '';
             position: absolute;
@@ -266,11 +298,13 @@
             align-items: center;
             gap: 6px;
         }
+
         .hero-btn:hover {
             background: rgba(255, 255, 255, 0.18);
             border-color: rgba(255, 255, 255, 0.6);
             transform: translateY(-1px);
         }
+
         .hero-btn.active {
             background: #ffffff;
             color: var(--green-dark);
@@ -296,6 +330,7 @@
             gap: 4px;
             transition: var(--transition);
         }
+
         .stat-card:hover {
             border-color: #cbd5e1;
             box-shadow: var(--shadow-card);
@@ -307,6 +342,7 @@
             font-weight: 600;
             letter-spacing: -0.01em;
         }
+
         .stat-value {
             font-family: "Outfit", "Pretendard", sans-serif;
             font-size: 1.85rem;
@@ -315,6 +351,7 @@
             letter-spacing: -0.02em;
             line-height: 1.2;
         }
+
         .stat-desc {
             font-size: 0.76rem;
             color: var(--text-muted);
@@ -350,11 +387,13 @@
             border-bottom: 1px solid var(--border-light);
             padding-bottom: 12px;
         }
+
         .sidebar-title {
             font-size: 1rem;
             font-weight: 700;
             color: var(--text-heading);
         }
+
         .btn-reset-text {
             background: transparent;
             border: none;
@@ -364,6 +403,7 @@
             cursor: pointer;
             transition: var(--transition);
         }
+
         .btn-reset-text:hover {
             color: var(--green-dark);
             text-decoration: underline;
@@ -374,6 +414,7 @@
             flex-direction: column;
             gap: 8px;
         }
+
         .filter-label {
             font-size: 0.8rem;
             font-weight: 700;
@@ -384,6 +425,7 @@
         .search-input-wrap {
             position: relative;
         }
+
         .filter-search-input {
             width: 100%;
             padding: 10px 40px 10px 14px;
@@ -396,11 +438,13 @@
             outline: none;
             transition: var(--transition);
         }
+
         .filter-search-input:focus {
             background: #ffffff;
             border-color: var(--green-mid);
             box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.12);
         }
+
         .search-shortcut-badge {
             position: absolute;
             right: 10px;
@@ -432,6 +476,7 @@
             -webkit-appearance: none;
             transition: var(--transition);
         }
+
         .filter-select:focus {
             border-color: var(--green-mid);
             box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.12);
@@ -453,9 +498,11 @@
             padding-bottom: 2px;
             scrollbar-width: thin;
         }
+
         .category-pill-bar::-webkit-scrollbar {
             height: 4px;
         }
+
         .category-pill-bar::-webkit-scrollbar-thumb {
             background: var(--border-color);
             border-radius: 4px;
@@ -474,10 +521,12 @@
             white-space: nowrap;
             transition: var(--transition);
         }
+
         .pill-tab:hover {
             border-color: #cbd5e1;
             background: #f9fafb;
         }
+
         .pill-tab.active {
             background: #111827;
             color: #ffffff;
@@ -501,17 +550,20 @@
             align-items: center;
             justify-content: space-between;
         }
+
         .rec-title-wrap h3 {
             font-size: 1.05rem;
             font-weight: 800;
             color: var(--text-heading);
             letter-spacing: -0.01em;
         }
+
         .rec-title-wrap p {
             font-size: 0.8rem;
             color: var(--text-sub);
             margin-top: 2px;
         }
+
         .btn-rec-refresh {
             background: #ffffff;
             border: 1px solid var(--border-color);
@@ -527,6 +579,7 @@
             align-items: center;
             gap: 6px;
         }
+
         .btn-rec-refresh:hover {
             background: #f9fafb;
             border-color: #cbd5e1;
@@ -550,11 +603,13 @@
             cursor: pointer;
             position: relative;
         }
+
         .rec-item-card:hover {
             border-color: var(--green-light);
             box-shadow: 0 4px 12px rgba(45, 106, 79, 0.1);
             transform: translateY(-2px);
         }
+
         .rec-top-tag {
             font-family: "Outfit", sans-serif;
             font-size: 0.72rem;
@@ -562,6 +617,7 @@
             color: var(--green-mid);
             letter-spacing: 0.05em;
         }
+
         .rec-keyword-name {
             font-size: 0.98rem;
             font-weight: 700;
@@ -571,6 +627,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
         .rec-badges-row {
             display: flex;
             align-items: center;
@@ -578,6 +635,7 @@
             flex-wrap: wrap;
             margin-top: 4px;
         }
+
         .badge-pill {
             font-size: 0.72rem;
             font-weight: 600;
@@ -587,6 +645,7 @@
             color: #4b5563;
             border: 1px solid #e5e7eb;
         }
+
         .badge-pill.score {
             background: #ecfdf5;
             color: #065f46;
@@ -621,6 +680,7 @@
             font-weight: 700;
             color: var(--text-heading);
         }
+
         .table-count-label strong {
             font-family: "Outfit", sans-serif;
             color: var(--green-dark);
@@ -647,6 +707,7 @@
             -webkit-appearance: none;
             outline: none;
         }
+
         .toolbar-select:focus {
             border-color: var(--green-mid);
         }
@@ -666,6 +727,7 @@
             cursor: pointer;
             transition: var(--transition);
         }
+
         .btn-toolbar:hover {
             background: #f9fafb;
             border-color: #cbd5e1;
@@ -678,10 +740,12 @@
             overflow: auto;
             scrollbar-width: thin;
         }
+
         .table-responsive::-webkit-scrollbar {
             width: 6px;
             height: 6px;
         }
+
         .table-responsive::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 4px;
@@ -694,6 +758,7 @@
             text-align: left;
             white-space: nowrap;
         }
+
         thead {
             position: sticky;
             top: 0;
@@ -701,6 +766,7 @@
             background: #f9fafb;
             border-bottom: 1.5px solid var(--border-color);
         }
+
         th {
             padding: 12px 16px;
             font-weight: 700;
@@ -710,13 +776,16 @@
             user-select: none;
             transition: var(--transition);
         }
+
         th:hover {
             color: var(--text-heading);
             background: #f3f4f6;
         }
+
         th.sorted {
             color: var(--green-dark);
         }
+
         th .sort-icon {
             display: inline-block;
             margin-left: 4px;
@@ -728,9 +797,11 @@
             border-bottom: 1px solid var(--border-light);
             transition: background 0.15s;
         }
+
         tbody tr:hover {
             background: #f8fafc;
         }
+
         td {
             padding: 12px 16px;
             color: var(--text-body);
@@ -746,6 +817,7 @@
             align-items: center;
             gap: 6px;
         }
+
         .btn-star {
             background: transparent;
             border: none;
@@ -755,13 +827,16 @@
             transition: transform 0.15s;
             line-height: 1;
         }
+
         .btn-star:hover {
             transform: scale(1.2);
             color: #f59e0b;
         }
+
         .btn-star.active {
             color: #f59e0b;
         }
+
         .cell-keyword-link {
             display: inline-flex;
             align-items: center;
@@ -771,6 +846,7 @@
             cursor: pointer;
             transition: var(--transition);
         }
+
         .naver-n-icon {
             display: inline-flex;
             align-items: center;
@@ -788,28 +864,34 @@
             box-shadow: 0 1px 3px rgba(3, 199, 90, 0.3);
             transition: transform 0.15s;
         }
+
         .cell-keyword-link:hover .naver-n-icon {
             transform: scale(1.12);
         }
+
         .cell-keyword-text {
             font-weight: 700;
             color: var(--text-heading);
             transition: color 0.15s;
         }
+
         .cell-keyword-link:hover .cell-keyword-text {
             color: #03c75a;
             text-decoration: underline;
         }
+
         .cell-keyword-external {
             color: #9ca3af;
             opacity: 0.5;
             transition: all 0.15s;
         }
+
         .cell-keyword-link:hover .cell-keyword-external {
             opacity: 1;
             color: #03c75a;
             transform: translate(1px, -1px);
         }
+
         .btn-copy-mini {
             background: transparent;
             border: 1px solid transparent;
@@ -822,6 +904,7 @@
             justify-content: center;
             transition: all 0.15s;
         }
+
         .btn-copy-mini:hover {
             background: #e5e7eb;
             color: #111827;
@@ -838,6 +921,7 @@
             color: #4b5563;
             border: 1px solid #e5e7eb;
         }
+
         .badge-grade {
             display: inline-block;
             padding: 2px 8px;
@@ -845,11 +929,13 @@
             font-size: 0.74rem;
             font-weight: 700;
         }
+
         .badge-grade-a {
             background: #ecfdf5;
             color: #065f46;
             border: 1px solid #a7f3d0;
         }
+
         .badge-grade-b {
             background: #eff6ff;
             color: #1e40af;
@@ -865,6 +951,7 @@
             font-size: 0.8rem;
             font-weight: 600;
         }
+
         .cell-url-link:hover {
             text-decoration: underline;
         }
@@ -880,11 +967,13 @@
             gap: 16px;
             flex-wrap: wrap;
         }
+
         .pagination-controls {
             display: flex;
             align-items: center;
             gap: 6px;
         }
+
         .page-btn {
             min-width: 34px;
             height: 34px;
@@ -902,15 +991,18 @@
             cursor: pointer;
             transition: var(--transition);
         }
+
         .page-btn:hover:not(:disabled) {
             background: #f9fafb;
             border-color: #cbd5e1;
         }
+
         .page-btn.active {
             background: var(--green-dark);
             border-color: var(--green-dark);
             color: #ffffff;
         }
+
         .page-btn:disabled {
             opacity: 0.4;
             cursor: not-allowed;
@@ -929,6 +1021,7 @@
             justify-content: center;
             gap: 16px;
         }
+
         .spinner {
             width: 44px;
             height: 44px;
@@ -937,9 +1030,13 @@
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
+
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
+
         .loading-text {
             font-size: 0.95rem;
             color: var(--text-heading);
@@ -964,6 +1061,7 @@
             transition: transform 0.25s ease, opacity 0.25s ease;
             pointer-events: none;
         }
+
         #toast.show {
             transform: translateY(0);
             opacity: 1;
@@ -985,35 +1083,44 @@
             .dashboard-layout {
                 grid-template-columns: 1fr;
             }
+
             .filter-sidebar {
                 position: static;
             }
+
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
+
             .rec-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+
         @media (max-width: 640px) {
             .container {
                 padding: 12px 14px 40px;
             }
+
             .hero-banner {
                 padding: 28px 20px;
             }
+
             .hero-title {
                 font-size: 1.75rem;
             }
+
             .stats-grid {
                 grid-template-columns: 1fr;
             }
+
             .rec-grid {
                 grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
+
 <body>
     <!-- 🔒 Password Lock Screen Overlay -->
     <div id="auth-overlay">
@@ -1025,7 +1132,8 @@
             </div>
             <form id="auth-form" onsubmit="handleAuthSubmit(event)">
                 <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <input type="password" id="auth-password-input" class="auth-input" placeholder="••••" maxlength="10" autofocus autocomplete="current-password">
+                    <input type="password" id="auth-password-input" class="auth-input" placeholder="비밀번호를 입력하세요"
+                        maxlength="50" autofocus autocomplete="current-password">
                     <div id="auth-error-msg" class="auth-error"></div>
                     <label class="auth-remember">
                         <input type="checkbox" id="auth-remember-check" checked>
@@ -1186,7 +1294,10 @@
                             <p>종합 점수 → 경쟁 기회 → 참여 인플루언서 순으로 추천해요.</p>
                         </div>
                         <button class="btn-rec-refresh" onclick="shuffleRecommendations()">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+                            </svg>
                             다른 추천
                         </button>
                     </div>
@@ -1200,21 +1311,28 @@
                             <strong id="table-row-count">0</strong>개 키워드
                         </div>
                         <div class="table-toolbar-right">
-                            <select id="table-sort-select" class="toolbar-select" onchange="handleSortSelectChange(this.value)">
+                            <select id="table-sort-select" class="toolbar-select"
+                                onchange="handleSortSelectChange(this.value)">
                                 <option value="SCORE_DESC" selected>종합 점수 높은순 ↕</option>
                                 <option value="PARTICIPANT_ASC">참여 인원 적은순 ↕</option>
                                 <option value="PARTICIPANT_DESC">참여 인원 많은순 ↕</option>
                                 <option value="KEYWORD_ASC">키워드 가나다순 ↕</option>
                             </select>
 
-                            <select id="table-page-size" class="toolbar-select" onchange="handlePageSizeChange(this.value)">
+                            <select id="table-page-size" class="toolbar-select"
+                                onchange="handlePageSizeChange(this.value)">
                                 <option value="50" selected>50</option>
                                 <option value="100">100</option>
                                 <option value="200">200</option>
                             </select>
 
                             <button class="btn-toolbar" onclick="exportFilteredCsv()">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
                                 CSV 저장
                             </button>
 
@@ -1253,7 +1371,7 @@
     <!-- Core Application Logic -->
     <script>
         const EXCEL_FILE_PATH = "네이버_인플루언서_공연전시예술_월별상시_분석추천.xlsx";
-        const AUTH_HASH = "edbb15588efba3a537127a1e484bead52ca02ca87cc19f50ae38ef6b23c6c927"; // SHA-256 for 5647
+        const AUTH_HASH = "daa95c1b7be51dc024a01e1b9c5e6c45535d40290c09fc0c9ce096d925e5f71d"; // SHA-256 for #Kwang5647
         const STORAGE_AUTH_KEY = "keyword_dash_auth";
         const STORAGE_BOOKMARKS_KEY = "keyword_dash_bookmarks";
 
@@ -1335,8 +1453,19 @@
             }
         }
 
+        let authFailCount = 0;
+        let authLockUntil = 0;
+
         async function handleAuthSubmit(e) {
             e.preventDefault();
+            const now = Date.now();
+            if (now < authLockUntil) {
+                const remainSec = Math.ceil((authLockUntil - now) / 1000);
+                elAuthError.textContent = `연속 시도 초과: ${remainSec}초 후에 다시 시도해주세요.`;
+                shakeAuthInput();
+                return;
+            }
+
             const val = elAuthInput.value.trim();
             if (!val) {
                 elAuthError.textContent = "비밀번호를 입력해주세요.";
@@ -1346,6 +1475,7 @@
 
             const hash = await sha256(val);
             if (hash === AUTH_HASH) {
+                authFailCount = 0;
                 state.isAuthenticated = true;
                 elAuthError.textContent = "";
 
@@ -1359,7 +1489,13 @@
                 showToast("인증 완료되었습니다.");
                 loadExcel();
             } else {
-                elAuthError.textContent = "비밀번호가 올바르지 않습니다.";
+                authFailCount++;
+                if (authFailCount >= 5) {
+                    authLockUntil = Date.now() + 60 * 1000;
+                    elAuthError.textContent = "5회 연속 실패: 1분간 입력이 제한됩니다.";
+                } else {
+                    elAuthError.textContent = `비밀번호가 올바르지 않습니다. (${authFailCount}/5)`;
+                }
                 shakeAuthInput();
                 elAuthInput.value = "";
                 elAuthInput.focus();
@@ -1372,7 +1508,7 @@
             elAuthInput.classList.add("shake");
         }
 
-        window.lockDashboard = function() {
+        window.lockDashboard = function () {
             localStorage.removeItem(STORAGE_AUTH_KEY);
             sessionStorage.removeItem(STORAGE_AUTH_KEY);
             state.isAuthenticated = false;
@@ -1423,7 +1559,7 @@
                 if (r["상세영역"]) categories.add(r["상세영역"]);
             });
 
-            elFilterCategory.innerHTML = `<option value="ALL">전체 분야</option>` + 
+            elFilterCategory.innerHTML = `<option value="ALL">전체 분야</option>` +
                 Array.from(categories).sort().map(c => `<option value="${c}">${c}</option>`).join("");
         }
 
@@ -1445,7 +1581,7 @@
             }).join("");
         }
 
-        window.switchPillTab = function(tabId) {
+        window.switchPillTab = function (tabId) {
             if (tabId === "BOOKMARKS") {
                 state.bookmarkOnlyView = true;
             } else {
@@ -1582,7 +1718,7 @@
             }).join("");
         }
 
-        window.shuffleRecommendations = function() {
+        window.shuffleRecommendations = function () {
             state.recShuffleOffset += 6;
             const rows = getFilteredRows();
             renderRecommendations(rows);
@@ -1604,7 +1740,7 @@
 
             // Columns to display based on sheet
             const allCols = Object.keys(rows[0]);
-            
+
             // Prioritize most useful columns
             let cols = allCols;
             if (state.currentTab === "키워드분석") {
@@ -1643,9 +1779,9 @@
                             ${kw ? `<button class="btn-star ${isBookmarked ? "active" : ""}" onclick="toggleBookmark('${kw}')" title="즐겨찾기 토글">★</button>` : ""}
                         </td>
                         ${cols.map(c => {
-                            const val = row[c] ?? "";
-                            return `<td>${formatTableCell(c, val)}</td>`;
-                        }).join("")}
+                    const val = row[c] ?? "";
+                    return `<td>${formatTableCell(c, val)}</td>`;
+                }).join("")}
                     </tr>
                 `;
             }).join("");
@@ -1714,7 +1850,7 @@
             })[m]);
         }
 
-        window.handleKeywordClick = function(event, keyword) {
+        window.handleKeywordClick = function (event, keyword) {
             navigator.clipboard.writeText(keyword).then(() => {
                 showToast(`네이버 검색창 열기 & 복사 완료: "${keyword}"`);
             }).catch(() => {
@@ -1722,7 +1858,7 @@
             });
         };
 
-        window.copyKeywordOnly = function(keyword) {
+        window.copyKeywordOnly = function (keyword) {
             navigator.clipboard.writeText(keyword).then(() => {
                 showToast(`키워드 복사 완료: "${keyword}"`);
             }).catch(() => {
@@ -1730,7 +1866,7 @@
             });
         };
 
-        window.quickSearchKeyword = function(keyword) {
+        window.quickSearchKeyword = function (keyword) {
             elFilterSearch.value = keyword;
             state.searchQuery = keyword;
             state.page = 1;
@@ -1739,7 +1875,7 @@
         };
 
         // Bookmark Toggle
-        window.toggleBookmark = function(kw) {
+        window.toggleBookmark = function (kw) {
             if (!kw) return;
             if (state.bookmarks.has(kw)) {
                 state.bookmarks.delete(kw);
@@ -1754,7 +1890,7 @@
             renderAll();
         };
 
-        window.toggleBookmarkOnlyView = function() {
+        window.toggleBookmarkOnlyView = function () {
             if (!state.bookmarkOnlyView && state.bookmarks.size === 0) {
                 showToast("즐겨찾기한 키워드가 없습니다. 키워드 앞의 ★을 눌러보세요.");
                 return;
@@ -1795,7 +1931,7 @@
             elPaginationControls.innerHTML = html;
         }
 
-        window.goToPage = function(pageNum) {
+        window.goToPage = function (pageNum) {
             state.page = pageNum;
             const rows = getFilteredRows();
             renderTable(rows);
@@ -1810,7 +1946,7 @@
         }
 
         // Quick Actions on Hero Banner
-        window.applyNicheFilter = function() {
+        window.applyNicheFilter = function () {
             resetAllFilters(false);
             elFilterParticipant.value = "UNDER_50";
             state.participantFilter = "UNDER_50";
@@ -1820,7 +1956,7 @@
             showToast("틈새 키워드 (참여 50명 이하 + A등급) 필터 적용 완료!");
         };
 
-        window.applyCurrentMonthFilter = function() {
+        window.applyCurrentMonthFilter = function () {
             resetAllFilters(false);
             elFilterType.value = "월별형";
             state.typeFilter = "월별형";
@@ -1828,7 +1964,7 @@
             showToast("이번 달(10월) 시즌 추천 키워드 필터 적용 완료!");
         };
 
-        window.resetAllFilters = function(render = true) {
+        window.resetAllFilters = function (render = true) {
             state.searchQuery = "";
             state.categoryFilter = "ALL";
             state.typeFilter = "ALL";
@@ -1901,19 +2037,19 @@
             showToast(`기준 월이 ${state.activeMonth}월로 변경되었습니다.`);
         });
 
-        window.handleSortSelectChange = function(val) {
+        window.handleSortSelectChange = function (val) {
             state.sortMode = val;
             renderAll();
         };
 
-        window.handlePageSizeChange = function(val) {
+        window.handlePageSizeChange = function (val) {
             state.pageSize = parseInt(val, 10);
             state.page = 1;
             renderAll();
         };
 
         // CSV Export
-        window.exportFilteredCsv = function() {
+        window.exportFilteredCsv = function () {
             const rows = getFilteredRows();
             if (!rows.length) {
                 showToast("내보낼 데이터가 없습니다.");
@@ -1944,4 +2080,5 @@
         window.addEventListener("DOMContentLoaded", checkInitialAuth);
     </script>
 </body>
+
 </html>
