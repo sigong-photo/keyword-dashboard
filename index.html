@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>네이버 인플루언서 키워드 대시보드</title>
-    <meta name="description" content="네이버 인플루언서 공연·전시·예술 키워드 1,400+개 및 월별 추천·상세 키워드 분석 대시보드">
+    <title>키워드 챌린지 시즌 분석기 | 네이버 인플루언서</title>
+    <meta name="description" content="월별 작성 타이밍, 경쟁 기회, 상세 키워드를 한 화면에서 탐색하는 네이버 인플루언서 키워드 챌린지 시즌 분석기">
     
     <!-- Google Fonts & Pretendard -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     
     <!-- SheetJS (Excel Parser) -->
@@ -17,29 +17,29 @@
 
     <style>
         :root {
-            --bg-body: #0b0f17;
-            --bg-surface: #111827;
-            --bg-card: rgba(17, 24, 39, 0.8);
-            --bg-card-hover: rgba(31, 41, 55, 0.7);
-            --border-color: rgba(55, 65, 81, 0.6);
-            --border-highlight: rgba(99, 102, 241, 0.4);
+            --bg-page: #f4f6f8;
+            --bg-card: #ffffff;
+            --border-color: #e5e7eb;
+            --border-light: #f3f4f6;
             
-            --primary: #6366f1;
-            --primary-light: #818cf8;
-            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-            --accent-green: #10b981;
-            --accent-amber: #f59e0b;
-            --accent-cyan: #06b6d4;
-            --accent-red: #ef4444;
+            --text-heading: #111827;
+            --text-body: #374151;
+            --text-sub: #6b7280;
+            --text-muted: #9ca3af;
             
-            --text-main: #f9fafb;
-            --text-sub: #9ca3af;
-            --text-muted: #6b7280;
+            --green-dark: #1b4332;
+            --green-mid: #2d6a4f;
+            --green-light: #40916c;
+            --green-accent: #10b981;
+            --green-subtle: #ecfdf5;
             
             --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 18px;
-            --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-pill: 9999px;
+            
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-card: 0 4px 16px -2px rgba(0, 0, 0, 0.05);
             --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -51,8 +51,8 @@
 
         body {
             font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
+            background-color: var(--bg-page);
+            color: var(--text-body);
             min-height: 100vh;
             line-height: 1.5;
             display: flex;
@@ -60,516 +60,646 @@
             overflow-x: hidden;
         }
 
-        /* Subtle glowing background orbs */
-        .bg-glow-1 {
-            position: fixed;
-            top: -150px;
-            right: -100px;
-            width: 450px;
-            height: 450px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0) 70%);
-            pointer-events: none;
-            z-index: 0;
+        /* ⚠️ Top Notice Banner */
+        .top-notice-banner {
+            background-color: #fff8eb;
+            border-bottom: 1px solid #fee3b8;
+            color: #b45309;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-align: center;
+            padding: 9px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        .bg-glow-2 {
-            position: fixed;
-            bottom: -150px;
-            left: -100px;
-            width: 450px;
-            height: 450px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(168, 85, 247, 0.12) 0%, rgba(168, 85, 247, 0) 70%);
-            pointer-events: none;
-            z-index: 0;
+        .top-notice-banner svg {
+            color: #d97706;
+            flex-shrink: 0;
         }
 
-        /* 🔒 Password Lock Screen Overlay */
+        /* 🔒 Password Lock Screen */
         #auth-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(11, 15, 23, 0.96);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             z-index: 1000;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            transition: opacity 0.35s ease, transform 0.35s ease;
+            transition: opacity 0.3s ease;
         }
         #auth-overlay.hidden {
             opacity: 0;
             pointer-events: none;
-            transform: scale(1.03);
         }
 
         .auth-card {
-            background: rgba(22, 29, 44, 0.95);
-            border: 1px solid rgba(99, 102, 241, 0.35);
+            background: #ffffff;
+            border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
-            padding: 36px 32px;
+            padding: 40px 32px;
             width: 100%;
-            max-width: 400px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 40px rgba(99, 102, 241, 0.15);
+            max-width: 420px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             text-align: center;
             display: flex;
             flex-direction: column;
             gap: 20px;
-            position: relative;
         }
-        .auth-icon {
+        .auth-badge-icon {
             width: 56px;
             height: 56px;
-            border-radius: 16px;
-            background: var(--primary-gradient);
+            border-radius: 18px;
+            background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             font-size: 26px;
             margin: 0 auto;
-            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+            color: #ffffff;
+            box-shadow: 0 8px 16px rgba(27, 67, 50, 0.25);
         }
         .auth-title {
-            font-family: "Outfit", "Pretendard", sans-serif;
             font-size: 1.35rem;
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: -0.01em;
+            font-weight: 800;
+            color: var(--text-heading);
+            letter-spacing: -0.02em;
         }
         .auth-desc {
             font-size: 0.88rem;
             color: var(--text-sub);
-            margin-top: -12px;
-        }
-        .auth-input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            text-align: left;
+            margin-top: -10px;
         }
         .auth-input {
             width: 100%;
             padding: 13px 16px;
-            background: rgba(9, 13, 20, 0.9);
-            border: 1px solid var(--border-color);
+            background: #f9fafb;
+            border: 1.5px solid var(--border-color);
             border-radius: var(--radius-sm);
-            color: #ffffff;
-            font-size: 1.15rem;
+            color: var(--text-heading);
+            font-size: 1.25rem;
             text-align: center;
             letter-spacing: 0.25em;
             outline: none;
             transition: var(--transition);
         }
         .auth-input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+            background: #ffffff;
+            border-color: var(--green-mid);
+            box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.15);
         }
         .auth-input.shake {
             animation: shake 0.4s ease-in-out;
-            border-color: var(--accent-red);
+            border-color: #ef4444;
         }
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             20%, 60% { transform: translateX(-8px); }
             40%, 80% { transform: translateX(8px); }
         }
+        .auth-error {
+            font-size: 0.82rem;
+            color: #ef4444;
+            min-height: 18px;
+            font-weight: 500;
+        }
         .auth-remember {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             font-size: 0.82rem;
             color: var(--text-sub);
             cursor: pointer;
             user-select: none;
         }
-        .auth-error {
-            font-size: 0.82rem;
-            color: var(--accent-red);
-            min-height: 18px;
-            font-weight: 500;
-        }
         .btn-auth-submit {
             width: 100%;
             padding: 13px;
             border-radius: var(--radius-sm);
-            background: var(--primary-gradient);
+            background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%);
             color: #ffffff;
             font-size: 0.95rem;
             font-weight: 700;
             border: none;
             cursor: pointer;
             transition: var(--transition);
-            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 4px 12px rgba(27, 67, 50, 0.3);
         }
         .btn-auth-submit:hover {
             opacity: 0.95;
             transform: translateY(-1px);
         }
 
-        /* Header */
-        header {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            background: rgba(11, 15, 23, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border-color);
-            padding: 14px 28px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-        }
-
-        .header-title-wrap {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .header-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-md);
-            background: var(--primary-gradient);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
-        }
-
-        h1 {
-            font-family: "Outfit", "Pretendard", sans-serif;
-            font-size: 1.25rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .badge-live {
-            font-size: 0.72rem;
-            padding: 3px 8px;
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #34d399;
-            border-radius: 20px;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .badge-live::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #10b981;
-            animation: pulse-dot 1.8s infinite;
-        }
-
-        .badge-private {
-            font-size: 0.72rem;
-            padding: 3px 8px;
-            background: rgba(99, 102, 241, 0.15);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            color: var(--primary-light);
-            border-radius: 20px;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.8); }
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: var(--radius-sm);
-            font-size: 0.86rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
-            border: none;
-            outline: none;
-        }
-        .btn-primary {
-            background: var(--primary);
-            color: #fff;
-            box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
-        }
-        .btn-primary:hover {
-            background: var(--primary-light);
-            transform: translateY(-1px);
-        }
-        .btn-secondary {
-            background: rgba(31, 41, 55, 0.7);
-            color: var(--text-main);
-            border: 1px solid var(--border-color);
-        }
-        .btn-secondary:hover {
-            background: rgba(55, 65, 81, 0.8);
-            border-color: rgba(99, 102, 241, 0.4);
-        }
-
-        /* Main Container */
-        main {
-            position: relative;
-            z-index: 1;
-            max-width: 1540px;
+        /* Outer Container */
+        .container {
+            max-width: 1440px;
             width: 100%;
             margin: 0 auto;
-            padding: 24px 28px 48px;
-            flex: 1;
+            padding: 16px 24px 60px;
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
 
-        /* Overview Stat Cards */
+        /* 🌲 Hero Banner (Reference Style) */
+        .hero-banner {
+            background: linear-gradient(135deg, #1a4331 0%, #2b684e 50%, #1f503b 100%);
+            border-radius: var(--radius-lg);
+            padding: 44px 48px;
+            color: #ffffff;
+            box-shadow: 0 10px 30px -5px rgba(27, 67, 50, 0.3);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 230px;
+        }
+        .hero-banner::after {
+            content: '';
+            position: absolute;
+            right: -60px;
+            bottom: -60px;
+            width: 320px;
+            height: 320px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 70%);
+            pointer-events: none;
+        }
+
+        .hero-subtitle {
+            font-family: "Outfit", sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            color: #86efac;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .hero-title {
+            font-size: 2.25rem;
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+            color: #ffffff;
+        }
+
+        .hero-desc {
+            font-size: 0.95rem;
+            color: #d1fae5;
+            margin-top: 10px;
+            font-weight: 400;
+        }
+
+        .hero-actions {
+            margin-top: 24px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            z-index: 2;
+        }
+
+        .hero-btn {
+            background: rgba(0, 0, 0, 0.22);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 0.84rem;
+            font-weight: 600;
+            padding: 8px 18px;
+            border-radius: var(--radius-pill);
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(8px);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .hero-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateY(-1px);
+        }
+        .hero-btn.active {
+            background: #ffffff;
+            color: var(--green-dark);
+            border-color: #ffffff;
+            font-weight: 700;
+        }
+
+        /* 📊 Stat Cards Row (4 White Cards) */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-            gap: 14px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
         }
+
         .stat-card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
-            padding: 16px 20px;
-            backdrop-filter: blur(10px);
-            transition: var(--transition);
+            padding: 20px 24px;
+            box-shadow: var(--shadow-sm);
             display: flex;
             flex-direction: column;
             gap: 4px;
+            transition: var(--transition);
         }
         .stat-card:hover {
-            border-color: var(--border-highlight);
-            transform: translateY(-2px);
+            border-color: #cbd5e1;
+            box-shadow: var(--shadow-card);
         }
+
         .stat-label {
             font-size: 0.8rem;
             color: var(--text-sub);
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            font-weight: 600;
+            letter-spacing: -0.01em;
         }
         .stat-value {
-            font-family: "Outfit", sans-serif;
-            font-size: 1.65rem;
-            font-weight: 700;
-            color: var(--text-main);
+            font-family: "Outfit", "Pretendard", sans-serif;
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            letter-spacing: -0.02em;
+            line-height: 1.2;
         }
         .stat-desc {
-            font-size: 0.74rem;
+            font-size: 0.76rem;
             color: var(--text-muted);
+            margin-top: 2px;
         }
 
-        /* Sheet Tabs Navigation */
-        .tabs-wrapper {
+        /* 2-Column Dashboard Layout */
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 290px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        /* 🎛 Left Sidebar: Filter & Settings */
+        .filter-sidebar {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
-            padding: 6px;
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
             display: flex;
-            gap: 6px;
-            overflow-x: auto;
-            scrollbar-width: thin;
+            flex-direction: column;
+            gap: 20px;
+            position: sticky;
+            top: 20px;
         }
-        .tabs-wrapper::-webkit-scrollbar {
-            height: 4px;
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 12px;
         }
-        .tabs-wrapper::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 4px;
+        .sidebar-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-heading);
         }
-        .tab-btn {
+        .btn-reset-text {
             background: transparent;
             border: none;
             color: var(--text-sub);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-reset-text:hover {
+            color: var(--green-dark);
+            text-decoration: underline;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .filter-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            letter-spacing: -0.01em;
+        }
+
+        .search-input-wrap {
+            position: relative;
+        }
+        .filter-search-input {
+            width: 100%;
+            padding: 10px 40px 10px 14px;
+            background: #f9fafb;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-heading);
+            font-family: inherit;
+            font-size: 0.88rem;
+            outline: none;
+            transition: var(--transition);
+        }
+        .filter-search-input:focus {
+            background: #ffffff;
+            border-color: var(--green-mid);
+            box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.12);
+        }
+        .search-shortcut-badge {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 2px 5px;
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 11px 36px 11px 14px;
+            background: #ffffff url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 15l5 5 5-5M7 9l5-5 5 5'/%3E%3C/svg%3E") no-repeat right 12px center;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-heading);
             font-family: inherit;
             font-size: 0.88rem;
             font-weight: 600;
-            padding: 8px 16px;
-            border-radius: var(--radius-sm);
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            transition: var(--transition);
+        }
+        .filter-select:focus {
+            border-color: var(--green-mid);
+            box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.12);
+        }
+
+        /* 📑 Right Main Area */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 0;
+        }
+
+        /* Category Pill Bar */
+        .category-pill-bar {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+            scrollbar-width: thin;
+        }
+        .category-pill-bar::-webkit-scrollbar {
+            height: 4px;
+        }
+        .category-pill-bar::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        .pill-tab {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            color: var(--text-body);
+            font-family: inherit;
+            font-size: 0.84rem;
+            font-weight: 600;
+            padding: 7px 16px;
+            border-radius: var(--radius-pill);
             cursor: pointer;
             white-space: nowrap;
             transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
-        .tab-btn:hover {
-            color: var(--text-main);
-            background: rgba(255, 255, 255, 0.05);
+        .pill-tab:hover {
+            border-color: #cbd5e1;
+            background: #f9fafb;
         }
-        .tab-btn.active {
-            background: var(--primary);
-            color: #fff;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
-        }
-        .tab-count {
-            font-size: 0.72rem;
-            padding: 2px 6px;
-            border-radius: 10px;
-            background: rgba(0, 0, 0, 0.25);
-            font-weight: 700;
+        .pill-tab.active {
+            background: #111827;
+            color: #ffffff;
+            border-color: #111827;
         }
 
-        /* Toolbar (Search & Filter) */
-        .toolbar-card {
+        /* 💡 Recommendation Section (TOP 6 Cards) */
+        .rec-section-card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
-            padding: 16px 20px;
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
             display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
+            flex-direction: column;
             gap: 16px;
         }
-        .search-box-wrap {
-            flex: 1;
-            min-width: 280px;
-            position: relative;
-        }
-        .search-box-wrap svg {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            pointer-events: none;
-        }
-        .search-input {
-            width: 100%;
-            padding: 10px 14px 10px 42px;
-            background: rgba(9, 13, 20, 0.85);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            color: var(--text-main);
-            font-family: inherit;
-            font-size: 0.9rem;
-            outline: none;
-            transition: var(--transition);
-        }
-        .search-input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-        }
 
-        .filter-controls {
+        .rec-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
+            justify-content: space-between;
         }
-        .select-input {
-            padding: 9px 14px;
-            background: rgba(9, 13, 20, 0.85);
+        .rec-title-wrap h3 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            letter-spacing: -0.01em;
+        }
+        .rec-title-wrap p {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            margin-top: 2px;
+        }
+        .btn-rec-refresh {
+            background: #ffffff;
             border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            color: var(--text-main);
+            color: var(--text-body);
             font-family: inherit;
-            font-size: 0.85rem;
-            outline: none;
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
             transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
-        .select-input:focus {
-            border-color: var(--primary);
+        .btn-rec-refresh:hover {
+            background: #f9fafb;
+            border-color: #cbd5e1;
         }
 
-        .result-count-badge {
-            font-size: 0.84rem;
-            color: var(--text-sub);
-            font-weight: 500;
+        .rec-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
         }
-        .result-count-badge strong {
-            color: var(--primary-light);
+
+        .rec-item-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+        .rec-item-card:hover {
+            border-color: var(--green-light);
+            box-shadow: 0 4px 12px rgba(45, 106, 79, 0.1);
+            transform: translateY(-2px);
+        }
+        .rec-top-tag {
+            font-family: "Outfit", sans-serif;
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: var(--green-mid);
+            letter-spacing: 0.05em;
+        }
+        .rec-keyword-name {
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            letter-spacing: -0.01em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .rec-badges-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+        .badge-pill {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: var(--radius-pill);
+            background: #f3f4f6;
+            color: #4b5563;
+            border: 1px solid #e5e7eb;
+        }
+        .badge-pill.score {
+            background: #ecfdf5;
+            color: #065f46;
+            border-color: #a7f3d0;
             font-family: "Outfit", sans-serif;
             font-weight: 700;
         }
 
-        /* Column Selector Dropdown */
-        .col-select-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: 110%;
-            z-index: 100;
-            min-width: 240px;
-            max-height: 320px;
-            overflow-y: auto;
-            background: #171f2d;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 8px;
-            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
-        }
-        .dropdown-menu.show {
-            display: block;
-        }
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 8px;
-            font-size: 0.82rem;
-            color: var(--text-sub);
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background 0.15s;
-        }
-        .dropdown-item:hover {
-            background: rgba(255, 255, 255, 0.06);
-            color: var(--text-main);
-        }
-
-        /* Data Table Container */
-        .table-card {
+        /* 📋 Main Data Table Section */
+        .table-section-card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
             overflow: hidden;
-            box-shadow: var(--shadow-card);
             display: flex;
             flex-direction: column;
         }
+
+        .table-toolbar {
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .table-count-label {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--text-heading);
+        }
+        .table-count-label strong {
+            font-family: "Outfit", sans-serif;
+            color: var(--green-dark);
+        }
+
+        .table-toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-select {
+            padding: 7px 30px 7px 12px;
+            background: #ffffff url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 15l5 5 5-5M7 9l5-5 5 5'/%3E%3C/svg%3E") no-repeat right 10px center;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-body);
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            outline: none;
+        }
+        .toolbar-select:focus {
+            border-color: var(--green-mid);
+        }
+
+        .btn-toolbar {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-heading);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-toolbar:hover {
+            background: #f9fafb;
+            border-color: #cbd5e1;
+        }
+
+        /* Table Styling */
         .table-responsive {
             width: 100%;
-            max-height: 640px;
+            max-height: 680px;
             overflow: auto;
             scrollbar-width: thin;
         }
         .table-responsive::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
         }
         .table-responsive::-webkit-scrollbar-thumb {
-            background: rgba(75, 85, 99, 0.5);
+            background: #cbd5e1;
             border-radius: 4px;
         }
 
@@ -584,21 +714,24 @@
             position: sticky;
             top: 0;
             z-index: 10;
-            background: #151d2c;
-            border-bottom: 2px solid rgba(55, 65, 81, 0.9);
+            background: #f9fafb;
+            border-bottom: 1.5px solid var(--border-color);
         }
         th {
             padding: 12px 16px;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-sub);
-            letter-spacing: 0.02em;
+            letter-spacing: -0.01em;
             cursor: pointer;
             user-select: none;
             transition: var(--transition);
         }
         th:hover {
-            color: var(--text-main);
-            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-heading);
+            background: #f3f4f6;
+        }
+        th.sorted {
+            color: var(--green-dark);
         }
         th .sort-icon {
             display: inline-block;
@@ -606,81 +739,101 @@
             font-size: 0.72rem;
             color: var(--text-muted);
         }
-        th.sorted {
-            color: var(--primary-light);
-        }
-        th.sorted .sort-icon {
-            color: var(--primary-light);
-        }
 
         tbody tr {
-            border-bottom: 1px solid rgba(45, 55, 72, 0.4);
+            border-bottom: 1px solid var(--border-light);
             transition: background 0.15s;
         }
         tbody tr:hover {
-            background: var(--bg-card-hover);
+            background: #f8fafc;
         }
         td {
-            padding: 10px 16px;
-            color: var(--text-main);
+            padding: 12px 16px;
+            color: var(--text-body);
             max-width: 420px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
-        /* Custom cell styles */
-        .cell-keyword {
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: -0.01em;
-            cursor: pointer;
+        /* Keyword link & buttons */
+        .cell-keyword-wrap {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
-        .cell-keyword:hover {
-            color: var(--primary-light);
+        .btn-star {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #d1d5db;
+            transition: transform 0.15s;
+            line-height: 1;
+        }
+        .btn-star:hover {
+            transform: scale(1.2);
+            color: #f59e0b;
+        }
+        .btn-star.active {
+            color: #f59e0b;
+        }
+        .cell-keyword-text {
+            font-weight: 700;
+            color: var(--text-heading);
+            cursor: pointer;
+            transition: color 0.15s;
+        }
+        .cell-keyword-text:hover {
+            color: var(--green-mid);
             text-decoration: underline;
         }
-        .cell-badge {
+
+        .badge-category {
             display: inline-block;
             padding: 2px 8px;
-            border-radius: 6px;
-            font-size: 0.76rem;
+            border-radius: var(--radius-pill);
+            font-size: 0.74rem;
             font-weight: 600;
+            background: #f3f4f6;
+            color: #4b5563;
+            border: 1px solid #e5e7eb;
+        }
+        .badge-grade {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: var(--radius-pill);
+            font-size: 0.74rem;
+            font-weight: 700;
         }
         .badge-grade-a {
-            background: rgba(16, 185, 129, 0.15);
-            color: #34d399;
-            border: 1px solid rgba(16, 185, 129, 0.3);
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
         }
         .badge-grade-b {
-            background: rgba(59, 130, 246, 0.15);
-            color: #60a5fa;
-            border: 1px solid rgba(59, 130, 246, 0.3);
+            background: #eff6ff;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
         }
-        .badge-score {
-            font-family: "Outfit", sans-serif;
-            font-weight: 700;
-            color: var(--accent-amber);
-        }
-        .cell-link {
-            color: var(--primary-light);
+
+        .cell-url-link {
+            color: var(--green-mid);
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 4px;
             font-size: 0.8rem;
+            font-weight: 600;
         }
-        .cell-link:hover {
+        .cell-url-link:hover {
             text-decoration: underline;
         }
 
-        /* Pagination & Table Footer */
+        /* Pagination & Footer */
         .table-footer {
-            padding: 12px 20px;
-            background: rgba(13, 17, 23, 0.9);
+            padding: 14px 24px;
+            background: #ffffff;
             border-top: 1px solid var(--border-color);
             display: flex;
             align-items: center;
@@ -688,69 +841,69 @@
             gap: 16px;
             flex-wrap: wrap;
         }
-        .pagination-wrap {
+        .pagination-controls {
             display: flex;
             align-items: center;
             gap: 6px;
         }
         .page-btn {
-            width: 34px;
+            min-width: 34px;
             height: 34px;
+            padding: 0 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: var(--radius-sm);
-            background: rgba(31, 41, 55, 0.5);
+            background: #ffffff;
             border: 1px solid var(--border-color);
-            color: var(--text-main);
+            color: var(--text-body);
             font-family: "Outfit", sans-serif;
-            font-size: 0.85rem;
+            font-size: 0.84rem;
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
         }
         .page-btn:hover:not(:disabled) {
-            background: rgba(55, 65, 81, 0.8);
-            border-color: var(--border-highlight);
+            background: #f9fafb;
+            border-color: #cbd5e1;
         }
         .page-btn.active {
-            background: var(--primary);
-            border-color: var(--primary);
-            color: #fff;
+            background: var(--green-dark);
+            border-color: var(--green-dark);
+            color: #ffffff;
         }
         .page-btn:disabled {
-            opacity: 0.35;
+            opacity: 0.4;
             cursor: not-allowed;
         }
 
-        /* Loading Overlay */
+        /* Loading Spinner */
         #loading-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(11, 15, 23, 0.92);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
             z-index: 999;
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 18px;
-            transition: opacity 0.3s ease;
+            gap: 16px;
         }
         .spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid rgba(99, 102, 241, 0.2);
-            border-top-color: var(--primary);
+            width: 44px;
+            height: 44px;
+            border: 3.5px solid #e5e7eb;
+            border-top-color: var(--green-mid);
             border-radius: 50%;
-            animation: spin 0.9s linear infinite;
+            animation: spin 0.8s linear infinite;
         }
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
         .loading-text {
-            font-size: 1rem;
-            color: var(--text-main);
+            font-size: 0.95rem;
+            color: var(--text-heading);
             font-weight: 600;
         }
 
@@ -759,18 +912,17 @@
             position: fixed;
             bottom: 24px;
             right: 24px;
-            background: #1e293b;
-            color: #fff;
+            background: #111827;
+            color: #ffffff;
             padding: 12px 20px;
             border-radius: var(--radius-sm);
-            border: 1px solid var(--border-highlight);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            font-size: 0.88rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            font-size: 0.86rem;
             font-weight: 500;
-            z-index: 1000;
+            z-index: 2000;
             transform: translateY(100px);
             opacity: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+            transition: transform 0.25s ease, opacity 0.25s ease;
             pointer-events: none;
         }
         #toast.show {
@@ -781,56 +933,73 @@
         /* Footer */
         footer {
             border-top: 1px solid var(--border-color);
-            padding: 18px 28px;
+            padding: 20px 24px;
             font-size: 0.8rem;
             color: var(--text-muted);
             text-align: center;
-            background: var(--bg-body);
+            background: #ffffff;
+            margin-top: auto;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            header {
-                padding: 12px 16px;
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+            .dashboard-layout {
+                grid-template-columns: 1fr;
             }
-            main {
-                padding: 16px 16px 36px;
+            .filter-sidebar {
+                position: static;
             }
-            .header-title-wrap h1 {
-                font-size: 1.05rem;
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
-            .toolbar-card {
-                flex-direction: column;
-                align-items: stretch;
+            .rec-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
-            .filter-controls {
-                justify-content: space-between;
+        }
+        @media (max-width: 640px) {
+            .container {
+                padding: 12px 14px 40px;
+            }
+            .hero-banner {
+                padding: 28px 20px;
+            }
+            .hero-title {
+                font-size: 1.75rem;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .rec-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <div class="bg-glow-1"></div>
-    <div class="bg-glow-2"></div>
+    <!-- ⚠️ Top Notice Banner (From Reference) -->
+    <div class="top-notice-banner">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        <span>재하하우스 수강생 전용 자료 · 외부 공유 금지</span>
+    </div>
 
-    <!-- 🔒 Password Lock Screen -->
+    <!-- 🔒 Password Lock Screen Overlay -->
     <div id="auth-overlay">
         <div class="auth-card">
-            <div class="auth-icon">🔒</div>
+            <div class="auth-badge-icon">🔒</div>
             <div>
-                <h2 class="auth-title">비공개 키워드 대시보드</h2>
-                <p class="auth-desc">접속을 위해 인증 비밀번호를 입력해주세요.</p>
+                <h2 class="auth-title">키워드 챌린지 시즌 분석기</h2>
+                <p class="auth-desc">수강생 전용 인증 비밀번호를 입력해주세요.</p>
             </div>
             <form id="auth-form" onsubmit="handleAuthSubmit(event)">
-                <div class="auth-input-group">
+                <div style="display: flex; flex-direction: column; gap: 8px;">
                     <input type="password" id="auth-password-input" class="auth-input" placeholder="••••" maxlength="10" autofocus autocomplete="current-password">
                     <div id="auth-error-msg" class="auth-error"></div>
                     <label class="auth-remember">
                         <input type="checkbox" id="auth-remember-check" checked>
-                        <span>이 기기에서 로그인 상태 유지</span>
+                        <span>이 브라우저에서 로그인 상태 유지</span>
                     </label>
                 </div>
-                <button type="submit" class="btn-auth-submit" id="btn-auth-submit" style="margin-top: 16px;">대시보드 열기</button>
+                <button type="submit" class="btn-auth-submit" style="margin-top: 14px;">대시보드 시작하기</button>
             </form>
         </div>
     </div>
@@ -838,152 +1007,241 @@
     <!-- Loading Overlay -->
     <div id="loading-overlay">
         <div class="spinner"></div>
-        <div class="loading-text" id="loading-msg">네이버 인플루언서 엑셀 데이터 분석 중...</div>
+        <div class="loading-text" id="loading-msg">키워드 분석 데이터를 불러오는 중...</div>
     </div>
 
-    <!-- Header -->
-    <header>
-        <div class="header-title-wrap">
-            <div class="header-icon">📊</div>
+    <div class="container">
+        <!-- 🌲 Hero Banner (Reference Green Card) -->
+        <section class="hero-banner">
             <div>
-                <h1 id="app-title">
-                    네이버 인플루언서 키워드 대시보드
-                    <span class="badge-private">🔒 Private</span>
-                    <span class="badge-live">Live</span>
+                <div class="hero-subtitle">KEYWORD CHALLENGE · SEASON ANALYZER</div>
+                <h1 class="hero-title">
+                    키워드 챌린지<br>시즌 분석기
                 </h1>
+                <p class="hero-desc">
+                    월별 작성 타이밍, 경쟁 기회, 상세 키워드를 한 화면에서 탐색해요.
+                </p>
             </div>
-        </div>
-        <div class="header-actions">
-            <button class="btn btn-secondary" id="btn-export-csv" title="현재 필터링된 테이블 CSV 다운로드">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                CSV 내보내기
-            </button>
-            <button class="btn btn-secondary" id="btn-lock" title="화면 다시 잠그기" onclick="lockDashboard()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                잠금
-            </button>
-            <a href="https://github.com/sigong-photo/keyword-dashboard" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" id="btn-github-link">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-                GitHub
-            </a>
-        </div>
-    </header>
+            <div class="hero-actions">
+                <button class="hero-btn" id="btn-hero-niche" onclick="applyNicheFilter()">
+                    <span>틈새 키워드 바로 보기</span>
+                </button>
+                <button class="hero-btn" id="btn-hero-month" onclick="applyCurrentMonthFilter()">
+                    <span>이번 달 작성 추천</span>
+                </button>
+                <button class="hero-btn" id="btn-hero-reset" onclick="resetAllFilters()">
+                    <span>전체 초기화</span>
+                </button>
+            </div>
+        </section>
 
-    <!-- Main Content -->
-    <main>
-        <!-- Stat Cards -->
-        <section class="stats-grid" id="stats-container">
+        <!-- 📊 Stat Cards Row (4 White Cards) -->
+        <section class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">전체 키워드 수 <span>📌</span></div>
+                <div class="stat-label">전체 키워드</div>
                 <div class="stat-value" id="stat-total-keywords">1,486</div>
-                <div class="stat-desc">공연·전시·예술 인플루언서 챌린지</div>
+                <div class="stat-desc">공연·전시·예술 분야 통합</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">지금 추천 (TOP 100) <span>🔥</span></div>
-                <div class="stat-value" id="stat-top100">100</div>
-                <div class="stat-desc">10월 최우선 작성 추천 키워드</div>
+                <div class="stat-label">선택 월</div>
+                <div class="stat-value" id="stat-selected-month">10월</div>
+                <div class="stat-desc">작성 점수 자동 반영</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">상세 검색어 후보 <span>💡</span></div>
-                <div class="stat-value" id="stat-detail-candidates">7,430</div>
-                <div class="stat-desc">롱테일 제목/소재 확장 키워드</div>
+                <div class="stat-label">검색 결과</div>
+                <div class="stat-value" id="stat-filtered-keywords">1,486</div>
+                <div class="stat-desc">현재 필터 기준</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">월별 캘린더 일정 <span>🗓</span></div>
-                <div class="stat-value" id="stat-calendar-count">116</div>
-                <div class="stat-desc">1월 ~ 12월 시즌별 작성 로드맵</div>
+            <div class="stat-card" style="cursor: pointer;" onclick="toggleBookmarkOnlyView()" title="클릭하여 즐겨찾기 목록만 보기">
+                <div class="stat-label">즐겨찾기 ⭐</div>
+                <div class="stat-value" id="stat-bookmark-count">0</div>
+                <div class="stat-desc">이 브라우저에 저장</div>
             </div>
         </section>
 
-        <!-- Sheet Tabs Navigation -->
-        <nav class="tabs-wrapper" id="sheet-tabs" aria-label="엑셀 시트 탭 목록"></nav>
-
-        <!-- Toolbar (Search, Filter, Export) -->
-        <section class="toolbar-card">
-            <div class="search-box-wrap">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input type="text" id="search-input" class="search-input" placeholder="키워드, 상세영역, 점수, 콘텐츠 방향 등 전체 텍스트 검색..." autocomplete="off">
-            </div>
-
-            <div class="filter-controls">
-                <div class="result-count-badge">
-                    <span id="filtered-count">0</span> / <span id="total-sheet-count">0</span>개 항목
+        <!-- 2-Column Dashboard Layout -->
+        <div class="dashboard-layout">
+            <!-- 🎛 Left Sidebar: Filter & Settings -->
+            <aside class="filter-sidebar">
+                <div class="sidebar-header">
+                    <span class="sidebar-title">필터 & 점수 설정</span>
+                    <button class="btn-reset-text" onclick="resetAllFilters()">초기화</button>
                 </div>
 
-                <div class="col-select-dropdown">
-                    <button class="btn btn-secondary" id="btn-col-toggle">
-                        열 선택 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </button>
-                    <div class="dropdown-menu" id="col-dropdown-menu"></div>
+                <!-- 키워드 검색 -->
+                <div class="filter-group">
+                    <label class="filter-label" for="filter-search">키워드 검색</label>
+                    <div class="search-input-wrap">
+                        <input type="text" id="filter-search" class="filter-search-input" placeholder="예: 전시, 서울, 10월">
+                        <span class="search-shortcut-badge">⌘K</span>
+                    </div>
                 </div>
 
-                <select id="page-size-select" class="select-input" title="페이지당 행 개수">
-                    <option value="50">50개씩 보기</option>
-                    <option value="100" selected>100개씩 보기</option>
-                    <option value="200">200개씩 보기</option>
-                    <option value="500">500개씩 보기</option>
-                </select>
-            </div>
-        </section>
+                <!-- 분야 (상세영역) -->
+                <div class="filter-group">
+                    <label class="filter-label" for="filter-category">분야</label>
+                    <select id="filter-category" class="filter-select">
+                        <option value="ALL">전체 분야</option>
+                    </select>
+                </div>
 
-        <!-- Data Table -->
-        <section class="table-card">
-            <div class="table-responsive" id="table-scroll-container">
-                <table id="main-data-table">
-                    <thead id="table-head"></thead>
-                    <tbody id="table-body"></tbody>
-                </table>
-            </div>
+                <!-- 구분 (시기/상시 분류) -->
+                <div class="filter-group">
+                    <label class="filter-label" for="filter-type">구분</label>
+                    <select id="filter-type" class="filter-select">
+                        <option value="ALL">전체</option>
+                        <option value="상시형">상시형</option>
+                        <option value="월별형">월별형</option>
+                        <option value="일정확인형">일정확인형</option>
+                        <option value="시즌형">시즌형</option>
+                    </select>
+                </div>
 
-            <!-- Table Footer & Pagination -->
-            <div class="table-footer">
-                <div id="pagination-info" class="result-count-badge"></div>
-                <div class="pagination-wrap" id="pagination-controls"></div>
-            </div>
-        </section>
-    </main>
+                <!-- 경쟁 구간 (현재 등급) -->
+                <div class="filter-group">
+                    <label class="filter-label" for="filter-grade">경쟁 구간</label>
+                    <select id="filter-grade" class="filter-select">
+                        <option value="ALL">전체</option>
+                        <option value="A 우선 작성">A 우선 작성 (추천)</option>
+                        <option value="B 소재 확보">B 소재 확보</option>
+                        <option value="C 일정 확인/대기">C 일정 확인/대기</option>
+                        <option value="D 보류/회고">D 보류/회고</option>
+                    </select>
+                </div>
+
+                <!-- 참여 인플루언서 수 필터 -->
+                <div class="filter-group">
+                    <label class="filter-label" for="filter-participant">참여 인플루언서 수</label>
+                    <select id="filter-participant" class="filter-select">
+                        <option value="ALL">제한 없음</option>
+                        <option value="UNDER_30">30명 이하 (경쟁 낮음)</option>
+                        <option value="UNDER_50">50명 이하 (틈새 구간)</option>
+                        <option value="OVER_100">100명 이상 (대형 키워드)</option>
+                    </select>
+                </div>
+
+                <!-- 기준 월 변경 -->
+                <div class="filter-group">
+                    <label class="filter-label" for="filter-month">기준 월</label>
+                    <select id="filter-month" class="filter-select">
+                        <option value="10">10월 (현재)</option>
+                        <option value="11">11월</option>
+                        <option value="12">12월</option>
+                        <option value="1">1월</option>
+                        <option value="2">2월</option>
+                        <option value="3">3월</option>
+                        <option value="4">4월</option>
+                        <option value="5">5월</option>
+                        <option value="6">6월</option>
+                        <option value="7">7월</option>
+                        <option value="8">8월</option>
+                        <option value="9">9월</option>
+                    </select>
+                </div>
+            </aside>
+
+            <!-- 📑 Right Main Area -->
+            <section class="main-content">
+                <!-- Category Pill Tabs -->
+                <nav class="category-pill-bar" id="category-pill-bar"></nav>
+
+                <!-- 💡 Recommendation Section (TOP 6 Cards) -->
+                <section class="rec-section-card" id="rec-section">
+                    <div class="rec-header">
+                        <div class="rec-title-wrap">
+                            <h3>이번 조건 추천 TOP 6</h3>
+                            <p>종합 점수 → 경쟁 기회 → 참여 인플루언서 순으로 추천해요.</p>
+                        </div>
+                        <button class="btn-rec-refresh" onclick="shuffleRecommendations()">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                            다른 추천
+                        </button>
+                    </div>
+                    <div class="rec-grid" id="rec-cards-container"></div>
+                </section>
+
+                <!-- 📋 Main Data Table Section -->
+                <section class="table-section-card">
+                    <div class="table-toolbar">
+                        <div class="table-count-label">
+                            <strong id="table-row-count">0</strong>개 키워드
+                        </div>
+                        <div class="table-toolbar-right">
+                            <select id="table-sort-select" class="toolbar-select" onchange="handleSortSelectChange(this.value)">
+                                <option value="SCORE_DESC" selected>종합 점수 높은순 ↕</option>
+                                <option value="PARTICIPANT_ASC">참여 인원 적은순 ↕</option>
+                                <option value="PARTICIPANT_DESC">참여 인원 많은순 ↕</option>
+                                <option value="KEYWORD_ASC">키워드 가나다순 ↕</option>
+                            </select>
+
+                            <select id="table-page-size" class="toolbar-select" onchange="handlePageSizeChange(this.value)">
+                                <option value="50" selected>50</option>
+                                <option value="100">100</option>
+                                <option value="200">200</option>
+                            </select>
+
+                            <button class="btn-toolbar" onclick="exportFilteredCsv()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                CSV 저장
+                            </button>
+
+                            <button class="btn-toolbar" onclick="lockDashboard()" title="대시보드 잠금">
+                                🔒 잠금
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Responsive Table -->
+                    <div class="table-responsive" id="table-scroll-container">
+                        <table>
+                            <thead id="data-thead"></thead>
+                            <tbody id="data-tbody"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="table-footer">
+                        <div id="pagination-info" style="font-size: 0.82rem; color: var(--text-sub);"></div>
+                        <div class="pagination-controls" id="pagination-controls"></div>
+                    </div>
+                </section>
+            </section>
+        </div>
+    </div>
 
     <!-- Toast Notification -->
     <div id="toast">복사되었습니다.</div>
 
     <!-- Footer -->
     <footer>
-        <p>네이버 인플루언서 공연·전시·예술 키워드 대시보드 | Protected Access</p>
+        <p>키워드 챌린지 시즌 분석기 · 네이버 인플루언서 공연·전시·예술 데이터 분석 센터</p>
     </footer>
 
-    <!-- Core App Logic -->
+    <!-- Core Application Logic -->
     <script>
         const EXCEL_FILE_PATH = "네이버_인플루언서_공연전시예술_월별상시_분석추천.xlsx";
-        // SHA-256 hash of password '5647'
-        const AUTH_HASH = "edbb15588efba3a537127a1e484bead52ca02ca87cc19f50ae38ef6b23c6c927";
-        const STORAGE_KEY = "keyword_dash_auth";
+        const AUTH_HASH = "edbb15588efba3a537127a1e484bead52ca02ca87cc19f50ae38ef6b23c6c927"; // SHA-256 for 5647
+        const STORAGE_AUTH_KEY = "keyword_dash_auth";
+        const STORAGE_BOOKMARKS_KEY = "keyword_dash_bookmarks";
 
-        // State Management
+        // Global State
         const state = {
             isAuthenticated: false,
             workbook: null,
             sheets: {},
-            currentSheet: "",
+            currentTab: "키워드분석", // Default primary analysis tab
+            activeMonth: "10",
+            bookmarks: new Set(),
             searchQuery: "",
-            sortCol: null,
-            sortAsc: true,
+            categoryFilter: "ALL",
+            typeFilter: "ALL",
+            gradeFilter: "ALL",
+            participantFilter: "ALL",
+            bookmarkOnlyView: false,
+            sortMode: "SCORE_DESC",
             page: 1,
-            pageSize: 100,
-            visibleCols: {},
-            activeRowIndex: null
-        };
-
-        const TAB_ICONS = {
-            "지금TOP100": "🔥",
-            "전체키워드": "📋",
-            "키워드분석": "🎯",
-            "상세키워드추천": "💡",
-            "월별캘린더": "🗓",
-            "월별점수": "⭐",
-            "키워드복사용": "📑",
-            "일정출처": "🔗",
-            "분석안내": "ℹ️",
-            "수집정보": "📦"
+            pageSize: 50,
+            recShuffleOffset: 0
         };
 
         // UI Elements
@@ -993,24 +1251,25 @@
         const elAuthRemember = document.getElementById("auth-remember-check");
         const elLoading = document.getElementById("loading-overlay");
         const elLoadingMsg = document.getElementById("loading-msg");
-        const elSheetTabs = document.getElementById("sheet-tabs");
-        const elSearchInput = document.getElementById("search-input");
-        const elTableHead = document.getElementById("table-head");
-        const elTableBody = document.getElementById("table-body");
-        const elFilteredCount = document.getElementById("filtered-count");
-        const elTotalSheetCount = document.getElementById("total-sheet-count");
+        const elCategoryPills = document.getElementById("category-pill-bar");
+        const elFilterSearch = document.getElementById("filter-search");
+        const elFilterCategory = document.getElementById("filter-category");
+        const elFilterType = document.getElementById("filter-type");
+        const elFilterGrade = document.getElementById("filter-grade");
+        const elFilterParticipant = document.getElementById("filter-participant");
+        const elFilterMonth = document.getElementById("filter-month");
+        const elRecCardsContainer = document.getElementById("rec-cards-container");
+        const elDataThead = document.getElementById("data-thead");
+        const elDataTbody = document.getElementById("data-tbody");
+        const elTableRowCount = document.getElementById("table-row-count");
         const elPaginationInfo = document.getElementById("pagination-info");
         const elPaginationControls = document.getElementById("pagination-controls");
-        const elPageSizeSelect = document.getElementById("page-size-select");
-        const elColToggleBtn = document.getElementById("btn-col-toggle");
-        const elColDropdownMenu = document.getElementById("col-dropdown-menu");
-        const elBtnExportCsv = document.getElementById("btn-export-csv");
         const elToast = document.getElementById("toast");
 
         function showToast(msg) {
             elToast.textContent = msg;
             elToast.classList.add("show");
-            setTimeout(() => elToast.classList.remove("show"), 2200);
+            setTimeout(() => elToast.classList.remove("show"), 2000);
         }
 
         // SHA-256 helper
@@ -1018,14 +1277,22 @@
             const enc = new TextEncoder();
             const data = enc.encode(text);
             const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+            return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, "0")).join("");
         }
 
-        // Check Authentication Status
+        // Initial Authentication Check
         async function checkInitialAuth() {
-            const savedToken = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
-            if (savedToken === AUTH_HASH) {
+            // Load bookmarks
+            try {
+                const savedBookmarks = JSON.parse(localStorage.getItem(STORAGE_BOOKMARKS_KEY) || "[]");
+                state.bookmarks = new Set(savedBookmarks);
+                updateBookmarkStats();
+            } catch (e) {
+                state.bookmarks = new Set();
+            }
+
+            const token = localStorage.getItem(STORAGE_AUTH_KEY) || sessionStorage.getItem(STORAGE_AUTH_KEY);
+            if (token === AUTH_HASH) {
                 state.isAuthenticated = true;
                 elAuthOverlay.classList.add("hidden");
                 loadExcel();
@@ -1035,7 +1302,6 @@
             }
         }
 
-        // Handle Password Submission
         async function handleAuthSubmit(e) {
             e.preventDefault();
             const val = elAuthInput.value.trim();
@@ -1045,19 +1311,19 @@
                 return;
             }
 
-            const inputHash = await sha256(val);
-            if (inputHash === AUTH_HASH) {
+            const hash = await sha256(val);
+            if (hash === AUTH_HASH) {
                 state.isAuthenticated = true;
                 elAuthError.textContent = "";
 
                 if (elAuthRemember.checked) {
-                    localStorage.setItem(STORAGE_KEY, AUTH_HASH);
+                    localStorage.setItem(STORAGE_AUTH_KEY, AUTH_HASH);
                 } else {
-                    sessionStorage.setItem(STORAGE_KEY, AUTH_HASH);
+                    sessionStorage.setItem(STORAGE_AUTH_KEY, AUTH_HASH);
                 }
 
                 elAuthOverlay.classList.add("hidden");
-                showToast("인증되었습니다.");
+                showToast("인증 완료되었습니다.");
                 loadExcel();
             } else {
                 elAuthError.textContent = "비밀번호가 올바르지 않습니다.";
@@ -1069,254 +1335,325 @@
 
         function shakeAuthInput() {
             elAuthInput.classList.remove("shake");
-            void elAuthInput.offsetWidth; // trigger reflow
+            void elAuthInput.offsetWidth;
             elAuthInput.classList.add("shake");
         }
 
-        // Lock Dashboard
         window.lockDashboard = function() {
-            localStorage.removeItem(STORAGE_KEY);
-            sessionStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(STORAGE_AUTH_KEY);
+            sessionStorage.removeItem(STORAGE_AUTH_KEY);
             state.isAuthenticated = false;
             elAuthInput.value = "";
-            elAuthError.textContent = "";
             elAuthOverlay.classList.remove("hidden");
             elAuthInput.focus();
             showToast("대시보드가 잠겼습니다.");
         };
 
-        // 1. Fetch & Parse Excel Data
+        // 1. Load Excel Data
         async function loadExcel() {
             if (!state.isAuthenticated) return;
 
             try {
                 elLoading.style.display = "flex";
-                elLoading.style.opacity = "1";
-                elLoadingMsg.textContent = "엑셀 데이터를 다운로드하는 중...";
-                const res = await fetch(encodeURI(EXCEL_FILE_PATH));
-                if (!res.ok) {
-                    throw new Error(`파일을 불러오지 못했습니다. 상태 코드: ${res.status}`);
-                }
+                elLoadingMsg.textContent = "엑셀 데이터를 불러오는 중...";
 
-                elLoadingMsg.textContent = "10개 시트 파싱 및 인덱싱 중...";
-                const arrayBuffer = await res.arrayBuffer();
-                const wb = XLSX.read(arrayBuffer, { type: "array" });
+                const res = await fetch(encodeURI(EXCEL_FILE_PATH));
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                const ab = await res.arrayBuffer();
+                const wb = XLSX.read(ab, { type: "array" });
                 state.workbook = wb;
 
-                wb.SheetNames.forEach(name => {
-                    const sheet = wb.Sheets[name];
-                    const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-                    state.sheets[name] = json;
+                wb.SheetNames.forEach(sheetName => {
+                    const sheet = wb.Sheets[sheetName];
+                    state.sheets[sheetName] = XLSX.utils.sheet_to_json(sheet, { defval: "" });
                 });
 
-                // Update Stats
-                if (state.sheets["전체키워드"]) {
-                    document.getElementById("stat-total-keywords").textContent = state.sheets["전체키워드"].length.toLocaleString();
-                }
-                if (state.sheets["지금TOP100"]) {
-                    document.getElementById("stat-top100").textContent = state.sheets["지금TOP100"].length.toLocaleString();
-                }
-                if (state.sheets["상세키워드추천"]) {
-                    document.getElementById("stat-detail-candidates").textContent = state.sheets["상세키워드추천"].length.toLocaleString();
-                }
-                if (state.sheets["월별캘린더"]) {
-                    document.getElementById("stat-calendar-count").textContent = state.sheets["월별캘린더"].length.toLocaleString();
-                }
+                // Populate categories from '키워드분석'
+                populateCategoryFilter();
+                renderCategoryPills();
+                updateStatsOverview();
+                renderAll();
 
-                // Render Tabs
-                renderTabs();
-
-                // Select default sheet (prefer '지금TOP100' or '전체키워드')
-                const defaultSheet = wb.SheetNames.includes("지금TOP100") 
-                    ? "지금TOP100" 
-                    : (wb.SheetNames.includes("전체키워드") ? "전체키워드" : wb.SheetNames[0]);
-                selectSheet(defaultSheet);
-
-                elLoading.style.opacity = "0";
-                setTimeout(() => elLoading.style.display = "none", 300);
+                elLoading.style.display = "none";
             } catch (err) {
                 console.error(err);
-                elLoadingMsg.innerHTML = `<span style="color: #ef4444;">데이터 로드 실패: ${err.message}</span><br><br><span style="font-size:0.85rem; color:#9ca3af;">동일 폴더에 엑셀 파일(${EXCEL_FILE_PATH})이 있는지 확인해주세요.</span>`;
+                elLoadingMsg.innerHTML = `<span style="color:#ef4444;">데이터 로드 실패: ${err.message}</span>`;
             }
         }
 
-        // 2. Render Tabs
-        function renderTabs() {
-            elSheetTabs.innerHTML = "";
-            state.workbook.SheetNames.forEach(sheetName => {
-                const rows = state.sheets[sheetName] || [];
-                const icon = TAB_ICONS[sheetName] || "📄";
-                const btn = document.createElement("button");
-                btn.className = `tab-btn ${sheetName === state.currentSheet ? "active" : ""}`;
-                btn.innerHTML = `<span>${icon}</span> <span>${sheetName}</span> <span class="tab-count">${rows.length}</span>`;
-                btn.addEventListener("click", () => selectSheet(sheetName));
-                elSheetTabs.appendChild(btn);
+        // 2. Populate Filters & Category Pills
+        function populateCategoryFilter() {
+            const analysisRows = state.sheets["키워드분석"] || [];
+            const categories = new Set();
+            analysisRows.forEach(r => {
+                if (r["상세영역"]) categories.add(r["상세영역"]);
             });
+
+            elFilterCategory.innerHTML = `<option value="ALL">전체 분야</option>` + 
+                Array.from(categories).sort().map(c => `<option value="${c}">${c}</option>`).join("");
         }
 
-        // 3. Select Sheet
-        function selectSheet(sheetName) {
-            state.currentSheet = sheetName;
-            state.searchQuery = "";
-            state.sortCol = null;
-            state.sortAsc = true;
-            state.page = 1;
-            elSearchInput.value = "";
+        function renderCategoryPills() {
+            const tabs = [
+                { id: "키워드분석", label: "전체 분석" },
+                { id: "지금TOP100", label: "지금 TOP 100" },
+                { id: "전체키워드", label: "전체 키워드" },
+                { id: "상세키워드추천", label: "상세 키워드" },
+                { id: "월별캘린더", label: "월별 캘린더" },
+                { id: "월별점수", label: "월별 점수" },
+                { id: "일정출처", label: "일정 출처" },
+                { id: "BOOKMARKS", label: "⭐ 즐겨찾기" }
+            ];
 
-            // Initialize visible columns
-            const rows = state.sheets[sheetName] || [];
-            if (rows.length > 0) {
-                const cols = Object.keys(rows[0]);
-                state.visibleCols[sheetName] = cols;
+            elCategoryPills.innerHTML = tabs.map(t => {
+                const isActive = (state.bookmarkOnlyView && t.id === "BOOKMARKS") || (!state.bookmarkOnlyView && state.currentTab === t.id);
+                return `<button class="pill-tab ${isActive ? "active" : ""}" onclick="switchPillTab('${t.id}')">${t.label}</button>`;
+            }).join("");
+        }
+
+        window.switchPillTab = function(tabId) {
+            if (tabId === "BOOKMARKS") {
+                state.bookmarkOnlyView = true;
             } else {
-                state.visibleCols[sheetName] = [];
+                state.bookmarkOnlyView = false;
+                state.currentTab = tabId;
+            }
+            state.page = 1;
+            renderCategoryPills();
+            renderAll();
+        };
+
+        // 3. Stats Overview
+        function updateStatsOverview() {
+            const total = (state.sheets["전체키워드"] || state.sheets["키워드분석"] || []).length;
+            document.getElementById("stat-total-keywords").textContent = total.toLocaleString();
+            document.getElementById("stat-selected-month").textContent = `${state.activeMonth}월`;
+            updateBookmarkStats();
+        }
+
+        function updateBookmarkStats() {
+            document.getElementById("stat-bookmark-count").textContent = state.bookmarks.size.toLocaleString();
+        }
+
+        // 4. Data Filtering Logic
+        function getFilteredRows() {
+            const activeSheetName = state.bookmarkOnlyView ? "키워드분석" : state.currentTab;
+            let rows = state.sheets[activeSheetName] || [];
+
+            // Bookmark only filter
+            if (state.bookmarkOnlyView) {
+                rows = rows.filter(r => state.bookmarks.has(String(r["키워드"] || r["추천 키워드"] || r["원본 키워드"])));
             }
 
-            renderTabs();
-            renderColDropdown();
-            renderTable();
-        }
-
-        // 4. Filter, Sort & Paginate Data
-        function getFilteredData() {
-            const rawRows = state.sheets[state.currentSheet] || [];
-            if (!rawRows.length) return [];
-
+            // Keyword Search Query
             const query = state.searchQuery.trim().toLowerCase();
-            let filtered = rawRows;
-
             if (query) {
-                filtered = rawRows.filter(row => {
-                    return Object.values(row).some(val => 
-                        String(val).toLowerCase().includes(query)
-                    );
+                rows = rows.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(query)));
+            }
+
+            // Category Filter
+            if (state.categoryFilter !== "ALL") {
+                rows = rows.filter(r => r["상세영역"] === state.categoryFilter || r["분야"] === state.categoryFilter);
+            }
+
+            // Type Filter (구분: 상시형, 월별형 등)
+            if (state.typeFilter !== "ALL") {
+                rows = rows.filter(r => r["분류"] === state.typeFilter);
+            }
+
+            // Grade Filter (경쟁 구간: A 우선 작성 등)
+            if (state.gradeFilter !== "ALL") {
+                rows = rows.filter(r => r["현재 등급"] === state.gradeFilter);
+            }
+
+            // Participant Filter (참여 인원)
+            if (state.participantFilter !== "ALL") {
+                rows = rows.filter(r => {
+                    const count = parseInt(r["참여 인원(명)"] || 0, 10);
+                    if (state.participantFilter === "UNDER_30") return count <= 30;
+                    if (state.participantFilter === "UNDER_50") return count <= 50;
+                    if (state.participantFilter === "OVER_100") return count >= 100;
+                    return true;
                 });
             }
 
             // Sorting
-            if (state.sortCol) {
-                filtered = [...filtered].sort((a, b) => {
-                    let va = a[state.sortCol];
-                    let vb = b[state.sortCol];
+            rows = [...rows].sort((a, b) => {
+                const scoreA = parseFloat(a[`${state.activeMonth}월 작성점수(100)`] || a["기본 기획점수(100)"] || a["10월 작성점수"] || a["해당월 점수"] || 0);
+                const scoreB = parseFloat(b[`${state.activeMonth}월 작성점수(100)`] || b["기본 기획점수(100)"] || b["10월 작성점수"] || b["해당월 점수"] || 0);
+                const partA = parseInt(a["참여 인원(명)"] || 0, 10);
+                const partB = parseInt(b["참여 인원(명)"] || 0, 10);
+                const kwA = String(a["키워드"] || a["추천 키워드"] || a["원본 키워드"] || "");
+                const kwB = String(b["키워드"] || b["추천 키워드"] || b["원본 키워드"] || "");
 
-                    // Numeric comparison
-                    const numA = parseFloat(va);
-                    const numB = parseFloat(vb);
-                    if (!isNaN(numA) && !isNaN(numB)) {
-                        return state.sortAsc ? numA - numB : numB - numA;
-                    }
+                switch (state.sortMode) {
+                    case "SCORE_DESC":
+                        return scoreB - scoreA || partA - partB;
+                    case "PARTICIPANT_ASC":
+                        return partA - partB;
+                    case "PARTICIPANT_DESC":
+                        return partB - partA;
+                    case "KEYWORD_ASC":
+                        return kwA.localeCompare(kwB);
+                    default:
+                        return 0;
+                }
+            });
 
-                    // String comparison
-                    const sa = String(va || "");
-                    const sb = String(vb || "");
-                    return state.sortAsc ? sa.localeCompare(sb) : sb.localeCompare(sa);
-                });
-            }
-
-            return filtered;
+            return rows;
         }
 
-        // 5. Render Table
-        function renderTable() {
-            const rows = state.sheets[state.currentSheet] || [];
-            const filtered = getFilteredData();
-            const cols = (state.visibleCols[state.currentSheet] || Object.keys(rows[0] || []));
+        // 5. Render Recommendations (TOP 6 Cards)
+        function renderRecommendations(filteredRows) {
+            // Pick candidate items with keyword and score
+            const candidates = filteredRows.filter(r => (r["키워드"] || r["추천 키워드"]) && (r["상세영역"] || r["분류"]));
+            const total = candidates.length;
 
-            elTotalSheetCount.textContent = rows.length.toLocaleString();
-            elFilteredCount.textContent = filtered.length.toLocaleString();
+            if (total === 0) {
+                elRecCardsContainer.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.88rem;">
+                        현재 조건에 맞는 추천 키워드가 없습니다. 필터를 초기화해 보세요.
+                    </div>
+                `;
+                return;
+            }
 
-            // Render Header
-            elTableHead.innerHTML = `
+            const start = state.recShuffleOffset % Math.max(1, total - 5);
+            const top6 = candidates.slice(start, start + 6);
+
+            elRecCardsContainer.innerHTML = top6.map((item, idx) => {
+                const rank = idx + 1;
+                const kw = item["키워드"] || item["추천 키워드"] || item["원본 키워드"];
+                const category = item["상세영역"] || item["분야"] || item["분류"] || "추천";
+                const participant = item["참여 인원(명)"] ? `참여 ${item["참여 인원(명)"]}` : "";
+                const score = item[`${state.activeMonth}월 작성점수(100)`] || item["기본 기획점수(100)"] || item["10월 작성점수"] || item["해당월 점수"] || "";
+
+                return `
+                    <div class="rec-item-card" onclick="quickSearchKeyword('${kw}')">
+                        <div class="rec-top-tag">TOP ${rank}</div>
+                        <div class="rec-keyword-name" title="${kw}">${kw}</div>
+                        <div class="rec-badges-row">
+                            <span class="badge-pill">${category}</span>
+                            ${participant ? `<span class="badge-pill">${participant}</span>` : ""}
+                            ${score ? `<span class="badge-pill score">종합 ${score}</span>` : ""}
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        window.shuffleRecommendations = function() {
+            state.recShuffleOffset += 6;
+            const rows = getFilteredRows();
+            renderRecommendations(rows);
+            showToast("다른 추천 키워드를 불러왔습니다.");
+        };
+
+        // 6. Render Data Table
+        function renderTable(rows) {
+            elTableRowCount.textContent = rows.length.toLocaleString();
+            document.getElementById("stat-filtered-keywords").textContent = rows.length.toLocaleString();
+
+            if (!rows.length) {
+                elDataThead.innerHTML = `<tr><th>키워드</th><th>내용</th></tr>`;
+                elDataTbody.innerHTML = `<tr><td colspan="2" style="text-align: center; padding: 48px; color: var(--text-muted);">검색 조건과 일치하는 키워드가 없습니다.</td></tr>`;
+                elPaginationInfo.textContent = "";
+                elPaginationControls.innerHTML = "";
+                return;
+            }
+
+            // Columns to display based on sheet
+            const allCols = Object.keys(rows[0]);
+            
+            // Prioritize most useful columns
+            let cols = allCols;
+            if (state.currentTab === "키워드분석") {
+                cols = ['키워드', '상세영역', '분류', `${state.activeMonth}월 작성점수(100)`, '기본 기획점수(100)', '현재 등급', '참여 인원(명)', '콘텐츠 방향', '추천 작성 시점', '주의사항', '인플루언서 검색 URL'];
+                cols = cols.filter(c => allCols.includes(c));
+            } else if (state.currentTab === "지금TOP100") {
+                cols = ['추천 순번', '키워드', '10월 작성점수', '분류', '상세영역', '추천 작성 시점', '추천 상세 후보1', '추천 상세 후보2'];
+                cols = cols.filter(c => allCols.includes(c));
+            }
+
+            // Table Header
+            elDataThead.innerHTML = `
                 <tr>
-                    <th style="width: 50px; text-align: center;">#</th>
-                    ${cols.map(c => {
-                        const isSorted = state.sortCol === c;
-                        const sortIcon = isSorted ? (state.sortAsc ? "▲" : "▼") : "↕";
-                        return `<th data-col="${c}" class="${isSorted ? "sorted" : ""}">
-                            ${c} <span class="sort-icon">${sortIcon}</span>
-                        </th>`;
-                    }).join("")}
+                    <th style="width: 40px; text-align: center;">⭐</th>
+                    ${cols.map(c => `<th>${c}</th>`).join("")}
                 </tr>
             `;
 
             // Pagination slice
-            const total = filtered.length;
+            const total = rows.length;
             const totalPages = Math.ceil(total / state.pageSize) || 1;
             if (state.page > totalPages) state.page = totalPages;
 
             const startIdx = (state.page - 1) * state.pageSize;
             const endIdx = Math.min(startIdx + state.pageSize, total);
-            const pageData = filtered.slice(startIdx, endIdx);
+            const pageData = rows.slice(startIdx, endIdx);
 
-            // Render Body
-            if (pageData.length === 0) {
-                elTableBody.innerHTML = `
+            // Table Body
+            elDataTbody.innerHTML = pageData.map(row => {
+                const kw = String(row["키워드"] || row["추천 키워드"] || row["원본 키워드"] || "");
+                const isBookmarked = state.bookmarks.has(kw);
+
+                return `
                     <tr>
-                        <td colspan="${cols.length + 1}" style="text-align: center; padding: 48px 16px; color: var(--text-muted);">
-                            검색 조건과 일치하는 데이터가 없습니다.
+                        <td style="text-align: center;">
+                            ${kw ? `<button class="btn-star ${isBookmarked ? "active" : ""}" onclick="toggleBookmark('${kw}')" title="즐겨찾기 토글">★</button>` : ""}
                         </td>
+                        ${cols.map(c => {
+                            const val = row[c] ?? "";
+                            return `<td>${formatTableCell(c, val)}</td>`;
+                        }).join("")}
                     </tr>
                 `;
-            } else {
-                elTableBody.innerHTML = pageData.map((row, idx) => {
-                    const rowNum = startIdx + idx + 1;
-                    return `
-                        <tr>
-                            <td style="text-align: center; color: var(--text-muted); font-family: 'Outfit'; font-size: 0.8rem;">${rowNum}</td>
-                            ${cols.map(c => {
-                                let val = row[c] ?? "";
-                                let cellHtml = formatCell(c, val);
-                                return `<td>${cellHtml}</td>`;
-                            }).join("")}
-                        </tr>
-                    `;
-                }).join("");
-            }
+            }).join("");
 
             renderPagination(total, totalPages, startIdx, endIdx);
-            attachHeaderClickEvents();
         }
 
-        // Format Cell Content
-        function formatCell(colName, val) {
-            if (val === "" || val === null || val === undefined) {
-                return '<span style="color: rgba(255,255,255,0.15);">-</span>';
-            }
+        function formatTableCell(colName, val) {
+            if (val === "" || val === null || val === undefined) return '<span style="color:#d1d5db;">-</span>';
+            const str = String(val);
 
-            const strVal = String(val);
-
-            // URL format
-            if (strVal.startsWith("http://") || strVal.startsWith("https://")) {
-                return `<a href="${strVal}" target="_blank" rel="noopener noreferrer" class="cell-link">
-                    링크 열기 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            // Link URL
+            if (str.startsWith("http://") || str.startsWith("https://")) {
+                return `<a href="${str}" target="_blank" rel="noopener noreferrer" class="cell-url-link">
+                    바로가기 ↗
                 </a>`;
             }
 
-            // Keyword click-to-copy
+            // Keyword Column
             if (colName.includes("키워드") && !colName.includes("ID") && !colName.includes("URL")) {
-                return `<span class="cell-keyword" onclick="copyKeyword('${strVal}')" title="클릭 시 키워드 복사">
-                    ${strVal}
-                </span>`;
+                return `
+                    <div class="cell-keyword-wrap">
+                        <span class="cell-keyword-text" onclick="copyKeyword('${str}')" title="클릭하여 복사">${str}</span>
+                    </div>
+                `;
             }
 
-            // Grade badge
-            if (colName.includes("등급")) {
-                if (strVal.includes("A")) {
-                    return `<span class="cell-badge badge-grade-a">${strVal}</span>`;
-                } else if (strVal.includes("B")) {
-                    return `<span class="cell-badge badge-grade-b">${strVal}</span>`;
-                }
+            // Category Badge
+            if (colName === "상세영역" || colName === "분야" || colName === "분류") {
+                return `<span class="badge-category">${str}</span>`;
             }
 
-            // Score badge
+            // Grade Badge
+            if (colName === "현재 등급") {
+                const cls = str.includes("A") ? "badge-grade-a" : (str.includes("B") ? "badge-grade-b" : "badge-category");
+                return `<span class="badge-grade ${cls}">${str}</span>`;
+            }
+
+            // Score formatting
             if (colName.includes("점수")) {
-                const num = parseFloat(strVal);
+                const num = parseFloat(str);
                 if (!isNaN(num)) {
-                    return `<span class="badge-score">${num}점</span>`;
+                    return `<strong style="font-family:'Outfit'; color:#065f46;">${num}점</strong>`;
                 }
             }
 
-            return escapeHtml(strVal);
+            return escapeHtml(str);
         }
 
         function escapeHtml(text) {
@@ -1337,25 +1674,43 @@
             });
         };
 
-        // 6. Header Sorting Events
-        function attachHeaderClickEvents() {
-            document.querySelectorAll("#table-head th[data-col]").forEach(th => {
-                th.addEventListener("click", () => {
-                    const col = th.getAttribute("data-col");
-                    if (state.sortCol === col) {
-                        state.sortAsc = !state.sortAsc;
-                    } else {
-                        state.sortCol = col;
-                        state.sortAsc = true;
-                    }
-                    renderTable();
-                });
-            });
-        }
+        window.quickSearchKeyword = function(keyword) {
+            elFilterSearch.value = keyword;
+            state.searchQuery = keyword;
+            state.page = 1;
+            renderAll();
+            document.getElementById("rec-section").scrollIntoView({ behavior: "smooth" });
+        };
 
-        // 7. Pagination Controls
+        // Bookmark Toggle
+        window.toggleBookmark = function(kw) {
+            if (!kw) return;
+            if (state.bookmarks.has(kw)) {
+                state.bookmarks.delete(kw);
+                showToast(`즐겨찾기 해제: "${kw}"`);
+            } else {
+                state.bookmarks.add(kw);
+                showToast(`즐겨찾기 저장: "${kw}"`);
+            }
+
+            localStorage.setItem(STORAGE_BOOKMARKS_KEY, JSON.stringify(Array.from(state.bookmarks)));
+            updateBookmarkStats();
+            renderAll();
+        };
+
+        window.toggleBookmarkOnlyView = function() {
+            state.bookmarkOnlyView = !state.bookmarkOnlyView;
+            state.page = 1;
+            renderCategoryPills();
+            renderAll();
+            if (state.bookmarkOnlyView) {
+                showToast("즐겨찾기한 키워드만 표시합니다.");
+            }
+        };
+
+        // 7. Pagination
         function renderPagination(total, totalPages, startIdx, endIdx) {
-            elPaginationInfo.innerHTML = `총 <strong>${total.toLocaleString()}</strong>개 중 <strong>${total ? (startIdx + 1) : 0}</strong> - <strong>${endIdx}</strong>개 표시 (페이지 ${state.page} / ${totalPages})`;
+            elPaginationInfo.innerHTML = `총 <strong>${total.toLocaleString()}</strong>개 중 <strong>${total ? startIdx + 1 : 0}</strong> - <strong>${endIdx}</strong>개 (페이지 ${state.page} / ${totalPages})`;
 
             if (totalPages <= 1) {
                 elPaginationControls.innerHTML = "";
@@ -1366,12 +1721,9 @@
             html += `<button class="page-btn" ${state.page === 1 ? "disabled" : ""} onclick="goToPage(1)">«</button>`;
             html += `<button class="page-btn" ${state.page === 1 ? "disabled" : ""} onclick="goToPage(${state.page - 1})">‹</button>`;
 
-            // Range of 5 pages
             let start = Math.max(1, state.page - 2);
             let end = Math.min(totalPages, start + 4);
-            if (end - start < 4) {
-                start = Math.max(1, end - 4);
-            }
+            if (end - start < 4) start = Math.max(1, end - 4);
 
             for (let i = start; i <= end; i++) {
                 html += `<button class="page-btn ${i === state.page ? "active" : ""}" onclick="goToPage(${i})">${i}</button>`;
@@ -1385,119 +1737,146 @@
 
         window.goToPage = function(pageNum) {
             state.page = pageNum;
-            renderTable();
+            const rows = getFilteredRows();
+            renderTable(rows);
             document.getElementById("table-scroll-container").scrollTop = 0;
         };
 
-        // 8. Column Dropdown Filter
-        function renderColDropdown() {
-            const rows = state.sheets[state.currentSheet] || [];
-            if (!rows.length) {
-                elColDropdownMenu.innerHTML = "";
-                return;
-            }
-
-            const allCols = Object.keys(rows[0]);
-            const visible = state.visibleCols[state.currentSheet] || allCols;
-
-            elColDropdownMenu.innerHTML = `
-                <div style="display:flex; justify-content:space-between; margin-bottom:6px; padding: 0 4px;">
-                    <a href="javascript:void(0)" style="font-size:0.75rem; color:var(--primary-light); text-decoration:none;" onclick="toggleAllCols(true)">모두 선택</a>
-                    <a href="javascript:void(0)" style="font-size:0.75rem; color:var(--text-sub); text-decoration:none;" onclick="toggleAllCols(false)">모두 해제</a>
-                </div>
-                ${allCols.map(c => `
-                    <label class="dropdown-item">
-                        <input type="checkbox" value="${c}" ${visible.includes(c) ? "checked" : ""}>
-                        <span>${c}</span>
-                    </label>
-                `).join("")}
-            `;
-
-            elColDropdownMenu.querySelectorAll("input[type='checkbox']").forEach(chk => {
-                chk.addEventListener("change", () => {
-                    const checkedCols = Array.from(elColDropdownMenu.querySelectorAll("input:checked")).map(i => i.value);
-                    if (checkedCols.length === 0) {
-                        chk.checked = true;
-                        showToast("최소 1개 이상의 열이 선택되어야 합니다.");
-                        return;
-                    }
-                    state.visibleCols[state.currentSheet] = checkedCols;
-                    renderTable();
-                });
-            });
+        // 8. Master Render
+        function renderAll() {
+            const rows = getFilteredRows();
+            renderRecommendations(rows);
+            renderTable(rows);
         }
 
-        window.toggleAllCols = function(enableAll) {
-            const rows = state.sheets[state.currentSheet] || [];
-            if (!rows.length) return;
-            const allCols = Object.keys(rows[0]);
-            state.visibleCols[state.currentSheet] = enableAll ? allCols : [allCols[0]];
-            renderColDropdown();
-            renderTable();
+        // Quick Actions on Hero Banner
+        window.applyNicheFilter = function() {
+            resetAllFilters(false);
+            elFilterParticipant.value = "UNDER_50";
+            state.participantFilter = "UNDER_50";
+            elFilterGrade.value = "A 우선 작성";
+            state.gradeFilter = "A 우선 작성";
+            renderAll();
+            showToast("틈새 키워드 (참여 50명 이하 + A등급) 필터 적용 완료!");
         };
 
-        // Toggle Column Dropdown visibility
-        elColToggleBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            elColDropdownMenu.classList.toggle("show");
-        });
-        document.addEventListener("click", () => {
-            elColDropdownMenu.classList.remove("show");
-        });
+        window.applyCurrentMonthFilter = function() {
+            resetAllFilters(false);
+            elFilterType.value = "월별형";
+            state.typeFilter = "월별형";
+            renderAll();
+            showToast("이번 달(10월) 시즌 추천 키워드 필터 적용 완료!");
+        };
 
-        // 9. Search Debounce
-        let searchTimer = null;
-        elSearchInput.addEventListener("input", (e) => {
-            clearTimeout(searchTimer);
-            searchTimer = setTimeout(() => {
-                state.searchQuery = e.target.value;
-                state.page = 1;
-                renderTable();
-            }, 180);
-        });
-
-        // 10. Page Size Change
-        elPageSizeSelect.addEventListener("change", (e) => {
-            state.pageSize = parseInt(e.target.value, 10);
+        window.resetAllFilters = function(render = true) {
+            state.searchQuery = "";
+            state.categoryFilter = "ALL";
+            state.typeFilter = "ALL";
+            state.gradeFilter = "ALL";
+            state.participantFilter = "ALL";
+            state.bookmarkOnlyView = false;
             state.page = 1;
-            renderTable();
+
+            elFilterSearch.value = "";
+            elFilterCategory.value = "ALL";
+            elFilterType.value = "ALL";
+            elFilterGrade.value = "ALL";
+            elFilterParticipant.value = "ALL";
+
+            renderCategoryPills();
+            if (render) {
+                renderAll();
+                showToast("모든 필터가 초기화되었습니다.");
+            }
+        };
+
+        // Event Listeners for Filters
+        elFilterSearch.addEventListener("input", (e) => {
+            state.searchQuery = e.target.value;
+            state.page = 1;
+            renderAll();
         });
 
-        // 11. CSV Export
-        elBtnExportCsv.addEventListener("click", () => {
-            const filtered = getFilteredData();
-            if (!filtered.length) {
+        // Keyboard Shortcut ⌘K / Ctrl+K
+        document.addEventListener("keydown", (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+                e.preventDefault();
+                elFilterSearch.focus();
+                elFilterSearch.select();
+            }
+        });
+
+        elFilterCategory.addEventListener("change", (e) => {
+            state.categoryFilter = e.target.value;
+            state.page = 1;
+            renderAll();
+        });
+
+        elFilterType.addEventListener("change", (e) => {
+            state.typeFilter = e.target.value;
+            state.page = 1;
+            renderAll();
+        });
+
+        elFilterGrade.addEventListener("change", (e) => {
+            state.gradeFilter = e.target.value;
+            state.page = 1;
+            renderAll();
+        });
+
+        elFilterParticipant.addEventListener("change", (e) => {
+            state.participantFilter = e.target.value;
+            state.page = 1;
+            renderAll();
+        });
+
+        elFilterMonth.addEventListener("change", (e) => {
+            state.activeMonth = e.target.value;
+            document.getElementById("stat-selected-month").textContent = `${state.activeMonth}월`;
+            renderAll();
+            showToast(`기준 월이 ${state.activeMonth}월로 변경되었습니다.`);
+        });
+
+        window.handleSortSelectChange = function(val) {
+            state.sortMode = val;
+            renderAll();
+        };
+
+        window.handlePageSizeChange = function(val) {
+            state.pageSize = parseInt(val, 10);
+            state.page = 1;
+            renderAll();
+        };
+
+        // CSV Export
+        window.exportFilteredCsv = function() {
+            const rows = getFilteredRows();
+            if (!rows.length) {
                 showToast("내보낼 데이터가 없습니다.");
                 return;
             }
 
-            const cols = state.visibleCols[state.currentSheet] || Object.keys(filtered[0]);
-            
-            // Build CSV with UTF-8 BOM
-            let csvContent = "\uFEFF";
-            csvContent += cols.map(c => `"${c.replace(/"/g, '""')}"`).join(",") + "\r\n";
+            const cols = Object.keys(rows[0]);
+            let csv = "\uFEFF"; // UTF-8 BOM
+            csv += cols.map(c => `"${c.replace(/"/g, '""')}"`).join(",") + "\r\n";
 
-            filtered.forEach(row => {
-                const line = cols.map(c => {
-                    const val = String(row[c] ?? "").replace(/"/g, '""');
-                    return `"${val}"`;
-                }).join(",");
-                csvContent += line + "\r\n";
+            rows.forEach(r => {
+                csv += cols.map(c => `"${String(r[c] ?? '').replace(/"/g, '""')}"`).join(",") + "\r\n";
             });
 
-            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = `${state.currentSheet}_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.download = `키워드챌린지_시즌분석_${state.activeMonth}월_${new Date().toISOString().slice(0, 10)}.csv`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            showToast(`${state.currentSheet} CSV 다운로드 완료!`);
-        });
+            showToast("CSV 다운로드가 완료되었습니다.");
+        };
 
-        // Initialize App with Auth Check
+        // Initialize App on DOM Ready
         window.addEventListener("DOMContentLoaded", checkInitialAuth);
     </script>
 </body>
