@@ -60,24 +60,7 @@
             overflow-x: hidden;
         }
 
-        /* ⚠️ Top Notice Banner */
-        .top-notice-banner {
-            background-color: #fff8eb;
-            border-bottom: 1px solid #fee3b8;
-            color: #b45309;
-            font-size: 0.82rem;
-            font-weight: 600;
-            text-align: center;
-            padding: 9px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .top-notice-banner svg {
-            color: #d97706;
-            flex-shrink: 0;
-        }
+        /* 🔒 Password Lock Screen */
 
         /* 🔒 Password Lock Screen */
         #auth-overlay {
@@ -976,19 +959,13 @@
     </style>
 </head>
 <body>
-    <!-- ⚠️ Top Notice Banner (From Reference) -->
-    <div class="top-notice-banner">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-        <span>재하하우스 수강생 전용 자료 · 외부 공유 금지</span>
-    </div>
-
     <!-- 🔒 Password Lock Screen Overlay -->
     <div id="auth-overlay">
         <div class="auth-card">
             <div class="auth-badge-icon">🔒</div>
             <div>
                 <h2 class="auth-title">키워드 챌린지 시즌 분석기</h2>
-                <p class="auth-desc">수강생 전용 인증 비밀번호를 입력해주세요.</p>
+                <p class="auth-desc">접속을 위해 인증 비밀번호를 입력해주세요.</p>
             </div>
             <form id="auth-form" onsubmit="handleAuthSubmit(event)">
                 <div style="display: flex; flex-direction: column; gap: 8px;">
