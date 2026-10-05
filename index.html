@@ -743,7 +743,7 @@
         .cell-keyword-wrap {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         .btn-star {
             background: transparent;
@@ -761,15 +761,70 @@
         .btn-star.active {
             color: #f59e0b;
         }
+        .cell-keyword-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .naver-n-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 17px;
+            height: 17px;
+            border-radius: 4px;
+            background: #03c75a;
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.68rem;
+            font-weight: 900;
+            line-height: 1;
+            flex-shrink: 0;
+            box-shadow: 0 1px 3px rgba(3, 199, 90, 0.3);
+            transition: transform 0.15s;
+        }
+        .cell-keyword-link:hover .naver-n-icon {
+            transform: scale(1.12);
+        }
         .cell-keyword-text {
             font-weight: 700;
             color: var(--text-heading);
-            cursor: pointer;
             transition: color 0.15s;
         }
-        .cell-keyword-text:hover {
-            color: var(--green-mid);
+        .cell-keyword-link:hover .cell-keyword-text {
+            color: #03c75a;
             text-decoration: underline;
+        }
+        .cell-keyword-external {
+            color: #9ca3af;
+            opacity: 0.5;
+            transition: all 0.15s;
+        }
+        .cell-keyword-link:hover .cell-keyword-external {
+            opacity: 1;
+            color: #03c75a;
+            transform: translate(1px, -1px);
+        }
+        .btn-copy-mini {
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            padding: 3px 5px;
+            color: #9ca3af;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+        .btn-copy-mini:hover {
+            background: #e5e7eb;
+            color: #111827;
+            border-color: #cbd5e1;
         }
 
         .badge-category {
@@ -1506,10 +1561,15 @@
                 const participant = item["참여 인원(명)"] ? `참여 ${item["참여 인원(명)"]}` : "";
                 const score = item[`${state.activeMonth}월 작성점수(100)`] || item["기본 기획점수(100)"] || item["10월 작성점수"] || item["해당월 점수"] || "";
 
+                const naverUrl = `https://search.naver.com/search.naver?query=${encodeURIComponent(kw)}`;
                 return `
-                    <div class="rec-item-card" onclick="quickSearchKeyword('${kw}')">
+                    <div class="rec-item-card" onclick="window.open('${naverUrl}', '_blank'); handleKeywordClick(event, '${kw}')" title="클릭 시 네이버 검색창 열기 (키워드 자동 복사)">
                         <div class="rec-top-tag">TOP ${rank}</div>
-                        <div class="rec-keyword-name" title="${kw}">${kw}</div>
+                        <div class="rec-keyword-name" style="display:flex; align-items:center; gap:6px;">
+                            <span class="naver-n-icon" style="width:15px; height:15px; font-size:0.6rem;">N</span>
+                            <span>${kw}</span>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:var(--text-muted);"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                        </div>
                         <div class="rec-badges-row">
                             <span class="badge-pill">${category}</span>
                             ${participant ? `<span class="badge-pill">${participant}</span>` : ""}
@@ -1604,9 +1664,17 @@
 
             // Keyword Column
             if (colName.includes("키워드") && !colName.includes("ID") && !colName.includes("URL")) {
+                const naverUrl = `https://search.naver.com/search.naver?query=${encodeURIComponent(str)}`;
                 return `
                     <div class="cell-keyword-wrap">
-                        <span class="cell-keyword-text" onclick="copyKeyword('${str}')" title="클릭하여 복사">${str}</span>
+                        <a href="${naverUrl}" target="_blank" rel="noopener noreferrer" class="cell-keyword-link" onclick="handleKeywordClick(event, '${str}')" title="클릭 시 네이버 검색창 열기 (키워드 자동 복사)">
+                            <span class="naver-n-icon">N</span>
+                            <span class="cell-keyword-text">${str}</span>
+                            <svg class="cell-keyword-external" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                        </a>
+                        <button class="btn-copy-mini" onclick="event.stopPropagation(); copyKeywordOnly('${str}')" title="키워드만 클립보드에 복사">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </button>
                     </div>
                 `;
             }
@@ -1643,7 +1711,15 @@
             })[m]);
         }
 
-        window.copyKeyword = function(keyword) {
+        window.handleKeywordClick = function(event, keyword) {
+            navigator.clipboard.writeText(keyword).then(() => {
+                showToast(`네이버 검색창 열기 & 복사 완료: "${keyword}"`);
+            }).catch(() => {
+                showToast(`네이버 검색창 열기: "${keyword}"`);
+            });
+        };
+
+        window.copyKeywordOnly = function(keyword) {
             navigator.clipboard.writeText(keyword).then(() => {
                 showToast(`키워드 복사 완료: "${keyword}"`);
             }).catch(() => {
