@@ -1279,6 +1279,19 @@
                         <option value="9">9월</option>
                     </select>
                 </div>
+
+                <!-- ⏰ 기간 / 진행 상태 필터 -->
+                <div class="filter-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label class="filter-label" for="filter-status" style="margin-bottom: 0;">진행 상태 (기간 필터)</label>
+                        <span style="font-size: 0.68rem; background: #e0f2fe; color: #0284c7; padding: 2px 6px; border-radius: 4px; font-weight: 700;">추천</span>
+                    </div>
+                    <select id="filter-status" class="filter-select">
+                        <option value="ACTIVE_ONLY" selected>기간 지난 키워드 제외 (기본)</option>
+                        <option value="ALL">전체 보기 (지난 기간 포함)</option>
+                        <option value="EXPIRED_ONLY">기간 지난 키워드만 모아보기</option>
+                    </select>
+                </div>
             </aside>
 
             <!-- 📑 Right Main Area -->
@@ -1388,6 +1401,7 @@
             typeFilter: "ALL",
             gradeFilter: "ALL",
             participantFilter: "ALL",
+            statusFilter: "ACTIVE_ONLY",
             bookmarkOnlyView: false,
             sortMode: "SCORE_DESC",
             page: 1,
@@ -1409,6 +1423,7 @@
         const elFilterGrade = document.getElementById("filter-grade");
         const elFilterParticipant = document.getElementById("filter-participant");
         const elFilterMonth = document.getElementById("filter-month");
+        const elFilterStatus = document.getElementById("filter-status");
         const elRecCardsContainer = document.getElementById("rec-cards-container");
         const elDataThead = document.getElementById("data-thead");
         const elDataTbody = document.getElementById("data-tbody");
@@ -1605,6 +1620,61 @@
             document.getElementById("stat-bookmark-count").textContent = state.bookmarks.size.toLocaleString();
         }
 
+        // Helper: 기간 지난 키워드 판별 (공식 행사기간 만료, 키워드명 내 과거 월, 소재 월 경과 등)
+        function isExpiredKeyword(r, targetMonth) {
+            const m = parseInt(targetMonth || state.activeMonth || "10", 10);
+
+            // 1. 공식 행사 기간 (예: 2026-09-02~2026-09-05)
+            const period = String(r["공식 확인 행사기간"] || r["2026 행사 기간"] || r["행사기간"] || "").trim();
+            if (period && period !== "미확인" && period.includes("~")) {
+                const parts = period.split("~");
+                const endStr = parts[parts.length - 1].trim();
+                const match = endStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                if (match) {
+                    const endYear = parseInt(match[1], 10);
+                    const endMonth = parseInt(match[2], 10);
+                    const endDay = parseInt(match[3], 10);
+                    const endDate = new Date(endYear, endMonth - 1, endDay, 23, 59, 59);
+                    if (endDate < new Date()) {
+                        return true;
+                    }
+                }
+            }
+
+            // 2. 키워드 명칭 자체에 명시된 월 (예: 7월전시회, 8월서울전시회, 3월전시회 등)
+            const kw = String(r["키워드"] || r["추천 키워드"] || r["원본 키워드"] || r["추천 상세 검색어"] || "");
+            const kwMatches = Array.from(kw.matchAll(/(\d{1,2})월/g)).map(res => parseInt(res[1], 10));
+            if (kwMatches.length > 0) {
+                const valid = kwMatches.filter(n => n >= 1 && n <= 12);
+                if (valid.length > 0 && valid.every(n => n < m)) {
+                    return true;
+                }
+            }
+
+            // 3. 월별형 / 시즌형 키워드 중 소재 월이 기준 월 이전인 경우
+            const typeVal = String(r["분류"] || "");
+            if (typeVal === "월별형" || typeVal === "시즌형") {
+                const interestM = String(r["관심·소재 월"] || "");
+                if (interestM && !interestM.includes("연중") && !interestM.includes("고정 월 없음")) {
+                    const intMatches = Array.from(interestM.matchAll(/(\d{1,2})월/g)).map(res => parseInt(res[1], 10));
+                    const valid = intMatches.filter(n => n >= 1 && n <= 12);
+                    if (valid.length > 0 && valid.every(n => n < m)) {
+                        return true;
+                    }
+                }
+            }
+
+            // 4. 월별캘린더 시트의 경우 작성 월이 기준 월 이전인 경우
+            if (r["작성 월"] !== undefined && r["작성 월"] !== "") {
+                const writeM = parseInt(r["작성 월"], 10);
+                if (!isNaN(writeM) && writeM < m) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         // 4. Data Filtering Logic
         function getFilteredRows() {
             const activeSheetName = state.bookmarkOnlyView ? "키워드분석" : state.currentTab;
@@ -1613,6 +1683,13 @@
             // Bookmark only filter
             if (state.bookmarkOnlyView) {
                 rows = rows.filter(r => state.bookmarks.has(String(r["키워드"] || r["추천 키워드"] || r["원본 키워드"])));
+            }
+
+            // Status / Period Filter (기간 지난 키워드 필터링)
+            if (state.statusFilter === "ACTIVE_ONLY") {
+                rows = rows.filter(r => !isExpiredKeyword(r, state.activeMonth));
+            } else if (state.statusFilter === "EXPIRED_ONLY") {
+                rows = rows.filter(r => isExpiredKeyword(r, state.activeMonth));
             }
 
             // Keyword Search Query
@@ -1744,7 +1821,7 @@
             // Prioritize most useful columns
             let cols = allCols;
             if (state.currentTab === "키워드분석") {
-                cols = ['키워드', '상세영역', '분류', `${state.activeMonth}월 작성점수(100)`, '기본 기획점수(100)', '현재 등급', '참여 인원(명)', '콘텐츠 방향', '추천 작성 시점', '주의사항', '인플루언서 검색 URL'];
+                cols = ['키워드', '상세영역', '분류', `${state.activeMonth}월 작성점수(100)`, '기본 기획점수(100)', '현재 등급', '참여 인원(명)', '공식 확인 행사기간', '콘텐츠 방향', '추천 작성 시점', '주의사항', '인플루언서 검색 URL'];
                 cols = cols.filter(c => allCols.includes(c));
             } else if (state.currentTab === "지금TOP100") {
                 cols = ['추천 순번', '키워드', '10월 작성점수', '분류', '상세영역', '추천 작성 시점', '추천 상세 후보1', '추천 상세 후보2'];
@@ -1780,7 +1857,7 @@
                         </td>
                         ${cols.map(c => {
                     const val = row[c] ?? "";
-                    return `<td>${formatTableCell(c, val)}</td>`;
+                    return `<td>${formatTableCell(c, val, row)}</td>`;
                 }).join("")}
                     </tr>
                 `;
@@ -1789,7 +1866,7 @@
             renderPagination(total, totalPages, startIdx, endIdx);
         }
 
-        function formatTableCell(colName, val) {
+        function formatTableCell(colName, val, row = null) {
             if (val === "" || val === null || val === undefined) return '<span style="color:#d1d5db;">-</span>';
             const str = String(val);
 
@@ -1800,15 +1877,33 @@
                 </a>`;
             }
 
+            // 공식 확인 행사기간 컬럼
+            if (colName.includes("행사기간") || colName.includes("행사 기간")) {
+                const isExp = row ? isExpiredKeyword(row, state.activeMonth) : false;
+                if (isExp && str !== "미확인") {
+                    return `<span style="color:#dc2626; font-weight:600; font-size:0.85rem;">${str} <span style="background:#fee2e2; color:#b91c1c; padding:1px 5px; border-radius:3px; font-size:0.7rem; font-weight:700;">종료</span></span>`;
+                }
+                if (str !== "미확인") {
+                    return `<span style="color:#16a34a; font-weight:600; font-size:0.85rem;">${str} <span style="background:#dcfce7; color:#15803d; padding:1px 5px; border-radius:3px; font-size:0.7rem; font-weight:700;">진행/예정</span></span>`;
+                }
+                return `<span style="color:var(--text-muted); font-size:0.85rem;">미확인</span>`;
+            }
+
             // Keyword Column Detection
             const isKeywordCol = (colName.includes("키워드") || colName.includes("검색어") || colName.includes("후보")) && !colName.includes("ID") && !colName.includes("URL") && !colName.includes("상태") && !colName.includes("번호");
             if (isKeywordCol) {
                 const naverUrl = `https://search.naver.com/search.naver?query=${encodeURIComponent(str)}`;
+                const isExp = row ? isExpiredKeyword(row, state.activeMonth) : false;
+                const statusBadge = isExp
+                    ? `<span style="font-size:0.65rem; background:#fee2e2; color:#b91c1c; padding:1px 5px; border-radius:3px; font-weight:700; white-space:nowrap; margin-left:4px;">종료</span>`
+                    : "";
+
                 return `
                     <div class="cell-keyword-wrap">
                         <a href="${naverUrl}" target="_blank" rel="noopener noreferrer" class="cell-keyword-link" onclick="handleKeywordClick(event, '${str}')" title="클릭 시 네이버 검색창 열기 (키워드 자동 복사)">
                             <span class="naver-n-icon">N</span>
                             <span class="cell-keyword-text">${str}</span>
+                            ${statusBadge}
                             <svg class="cell-keyword-external" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                         </a>
                         <button class="btn-copy-mini" onclick="event.stopPropagation(); copyKeywordOnly('${str}')" title="키워드만 클립보드에 복사">
@@ -1970,6 +2065,7 @@
             state.typeFilter = "ALL";
             state.gradeFilter = "ALL";
             state.participantFilter = "ALL";
+            state.statusFilter = "ACTIVE_ONLY";
             state.bookmarkOnlyView = false;
             state.page = 1;
 
@@ -1978,6 +2074,7 @@
             elFilterType.value = "ALL";
             elFilterGrade.value = "ALL";
             elFilterParticipant.value = "ALL";
+            if (elFilterStatus) elFilterStatus.value = "ACTIVE_ONLY";
 
             renderCategoryPills();
             if (render) {
@@ -2026,6 +2123,12 @@
 
         elFilterParticipant.addEventListener("change", (e) => {
             state.participantFilter = e.target.value;
+            state.page = 1;
+            renderAll();
+        });
+
+        elFilterStatus.addEventListener("change", (e) => {
+            state.statusFilter = e.target.value;
             state.page = 1;
             renderAll();
         });
