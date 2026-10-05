@@ -6,7 +6,8 @@
     <title>키워드 챌린지 시즌 분석기 | 네이버 인플루언서</title>
     <meta name="description" content="월별 작성 타이밍, 경쟁 기회, 상세 키워드를 한 화면에서 탐색하는 네이버 인플루언서 키워드 챌린지 시즌 분석기">
     
-    <!-- Google Fonts & Pretendard -->
+    <!-- Favicon & Google Fonts & Pretendard -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -1539,7 +1540,7 @@
         // 5. Render Recommendations (TOP 6 Cards)
         function renderRecommendations(filteredRows) {
             // Pick candidate items with keyword and score
-            const candidates = filteredRows.filter(r => (r["키워드"] || r["추천 키워드"]) && (r["상세영역"] || r["분류"]));
+            const candidates = filteredRows.filter(r => (r["키워드"] || r["추천 키워드"] || r["추천 상세 검색어"]) && (r["상세영역"] || r["분류"] || r["분야"]));
             const total = candidates.length;
 
             if (total === 0) {
@@ -1551,7 +1552,8 @@
                 return;
             }
 
-            const start = state.recShuffleOffset % Math.max(1, total - 5);
+            const maxStart = Math.max(0, total - 6);
+            const start = maxStart > 0 ? (state.recShuffleOffset % (maxStart + 1)) : 0;
             const top6 = candidates.slice(start, start + 6);
 
             elRecCardsContainer.innerHTML = top6.map((item, idx) => {
@@ -1662,8 +1664,9 @@
                 </a>`;
             }
 
-            // Keyword Column
-            if (colName.includes("키워드") && !colName.includes("ID") && !colName.includes("URL")) {
+            // Keyword Column Detection
+            const isKeywordCol = (colName.includes("키워드") || colName.includes("검색어") || colName.includes("후보")) && !colName.includes("ID") && !colName.includes("URL") && !colName.includes("상태") && !colName.includes("번호");
+            if (isKeywordCol) {
                 const naverUrl = `https://search.naver.com/search.naver?query=${encodeURIComponent(str)}`;
                 return `
                     <div class="cell-keyword-wrap">
@@ -1752,6 +1755,10 @@
         };
 
         window.toggleBookmarkOnlyView = function() {
+            if (!state.bookmarkOnlyView && state.bookmarks.size === 0) {
+                showToast("즐겨찾기한 키워드가 없습니다. 키워드 앞의 ★을 눌러보세요.");
+                return;
+            }
             state.bookmarkOnlyView = !state.bookmarkOnlyView;
             state.page = 1;
             renderCategoryPills();
@@ -1845,6 +1852,10 @@
 
         // Event Listeners for Filters
         elFilterSearch.addEventListener("input", (e) => {
+            if (state.bookmarkOnlyView && state.bookmarks.size === 0) {
+                state.bookmarkOnlyView = false;
+                renderCategoryPills();
+            }
             state.searchQuery = e.target.value;
             state.page = 1;
             renderAll();
